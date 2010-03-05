@@ -33,9 +33,17 @@ int main (int argc, char * const argv[]) {
         exit(1);
     }
     // initlialize video capture with default device (0)
-    device = 0;
-    capture = cvCaptureFromCAM(device);
-    // initialize a font
+    device = 0;    
+
+	// use for default resolution
+	capture = cvCaptureFromCAM(device);
+    
+	// use for custom resolution
+	/*capture = cvCreateCameraCapture(device);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 800);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 600);*/
+
+	// initialize a font
     cvInitFont(&font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
     cvInitFont(&smallfont, CV_FONT_HERSHEY_DUPLEX, 0.75, 0.75, 0, 1);
     storage = cvCreateMemStorage(0);
