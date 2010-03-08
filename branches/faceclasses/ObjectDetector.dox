@@ -1,0 +1,8 @@
+/** @file ObjectDetector.hpp
+ * Contains the ObjectDetector class definition, which uses a Haar classifier to
+ * detect faces in a given image.
+ *
+ * @author Zachary Murray (dremelofdeath@gmail.com)
+ * @author Michael McGregor (michael.mcgregor.wvu@gmail.com)
+ * @date 03/08/2010 01:19:00 EST
+ */
