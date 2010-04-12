@@ -202,7 +202,7 @@ int main (int argc, char * const argv[]) {
 	//before rotation we need to adjust img with translate so that we are rotating around the midpoint
 //	cvWarpPerspective(src, img, &revTranslationMatrix);	
 
-
+	cvReleaseImage(&src);
 
 	//END DEDIT
 
