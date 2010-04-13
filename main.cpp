@@ -1,3 +1,14 @@
+#ifdef WIN32
+   #include <windows.h>
+#endif
+#include <iostream>
+#include <fstream>
+
+#include <glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -5,6 +16,37 @@
 #include "cv.h"
 #include "highgui.h"
 
+static CvHaarClassifierCascade *cascade;
+
+static float ratio;
+//eye position - location of camera
+static float eyeX=0.0f;
+static float eyeY=0.0f;
+static float eyeZ=0.0f;
+//center position - where camera is pointing
+static float centX = 0.0f;
+static float centY = 0.0f;
+static float centZ = -1.0f;
+
+static GLuint frameTex;
+
+//taken from http://blog.damiles.com/?p=9
+int loadTexture_Ipl(IplImage *image, GLuint *text)
+{
+	if (image==NULL) return -1; 
+	glGenTextures(1, text);
+ 
+	glBindTexture( GL_TEXTURE_2D, *text ); //bind the texture to it's array
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+ 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, image->imageData);
+
+	return 0;
+}
 
 int fillRotationArray(double x, double y, double z, double angle, double rotArr[9])
 {
@@ -20,7 +62,39 @@ int fillRotationArray(double x, double y, double z, double angle, double rotArr[
 	return 0;
 }
 
-int main (int argc, char * const argv[]) {
+void myReshape(int w, int h)
+{
+	if (h == 0) h = 1;
+	ratio = 1.0f * w / h;
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();	
+    glViewport(0, 0, w, h);
+	gluPerspective(45, ratio, 0.01, 500);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(eyeX, eyeY, eyeZ, 
+		eyeX + centX, eyeY + centY, eyeZ + centZ,
+		0.0f, 1.0f, 0.0f);
+
+
+}
+
+void display(void)
+{
+//	printf("THREETEST\n");
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glEnable(GL_TEXTURE_2D);
+
+
+
+
+
+
+
+
+	//OLD MAIN
+
 	IplImage* img = 0;	
     IplImage* scaled = 0; 
     char text[256] = {0};
@@ -35,17 +109,17 @@ int main (int argc, char * const argv[]) {
     CvCapture *capture;
     CvFont font, smallfont;
     // load up the face detection data
-    CvHaarClassifierCascade *cascade;
-    const char *facedatafile = "haarcascade_frontalface_alt.xml";
+//    CvHaarClassifierCascade *cascade;
+  //  const char *facedatafile = "haarcascade_frontalface_alt.xml";
     CvMemStorage *storage;
     CvSeq *faces;
     int iface;
-    printf("CLOCKS_PER_SEC: %d", CLOCKS_PER_SEC);
-    cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
-    if(!cascade) {
-        fprintf(stderr, "DEATH: cascade failure!\n");
-        exit(1);
-    }
+//    printf("CLOCKS_PER_SEC: %d", CLOCKS_PER_SEC);
+   // cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
+   // if(!cascade) {
+   //     fprintf(stderr, "DEATH: cascade failure!\n");
+   //     exit(1);
+ //   }
     // initlialize video capture with default device (0)
     device = 0;    
 
@@ -53,9 +127,9 @@ int main (int argc, char * const argv[]) {
 	capture = cvCaptureFromCAM(device);
     
 	// use for custom resolution
-	/*capture = cvCreateCameraCapture(device);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 800);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 600);*/
+	//capture = cvCreateCameraCapture(device);
+	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 800);
+	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 600);
 
 	// initialize a font
     cvInitFont(&font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
@@ -69,8 +143,8 @@ int main (int argc, char * const argv[]) {
 	src = cvCloneImage(img);
 	//END DEDIT
 	// create a window
-	cvNamedWindow("Main Window", CV_WINDOW_AUTOSIZE); 
-	cvMoveWindow("Main Window", 100, 100);
+//	cvNamedWindow("Main Window", CV_WINDOW_AUTOSIZE); 
+//	cvMoveWindow("Main Window", 100, 100);
     last_clock = clock();
 
 
@@ -89,54 +163,12 @@ int main (int argc, char * const argv[]) {
 	//3 4 5
 	//6 7 8
 
-	const double TRANX = 300; //img->width/10; //-100.0;
-	const double TRANY = 300; //img->height/10; //-100.0;
-	const double TRANZ = 0; //-100.0;
 
 
-	double transArr[9] = {1, 0, TRANX,
-						  0, 1, TRANY, //lol trany
-						  0, 0, 1};
 
 
-	/*
-	double transArr[9] = {1, 0, TRANX,
-						  0, 1, TRANY, //lol trany
-						  0, 0, TRANZ};
-						  */
 
-	double revTransArr[9] = {1, 0, -TRANX,
-						     0, 1, -TRANY, //lol trany
-						     0, 0, 1};
-
-	CvMat translationMatrix = cvMat(3, 3, CV_64FC1, transArr);
-
-	CvMat revTranslationMatrix = cvMat(3, 3, CV_64FC1, revTransArr);
-
-	double rotArr[9] = {1 + (1-cos(angle))*(x*x-1), -z*sin(angle)+(1-cos(angle))*x*y, y*sin(angle)+(1-cos(angle))*x*z,
-						z*sin(angle)+(1-cos(angle))*x*y, 1 + (1-cos(angle))*(y*y-1), -x*sin(angle)+(1-cos(angle))*y*z,
-						-y*sin(angle)+(1-cos(angle))*x*z, x*sin(angle)+(1-cos(angle))*y*z, 1 + (1-cos(angle))*(z*z-1)};
-
-
-	//create the rotation matrix so I can orient later
-	CvMat rotationMatrix = cvMat(3, 3, CV_64FC1, rotArr);
-
-
-	//center of rotation
-//	CvPoint2D32f center = cvPoint2D32f(img->width/2, img->height/2); //which iplimage? img or scaled?
-
-	//END DEDIT
-
-
-	//DEDIT
-	//perform orientation
-//	cvWarpAffine(scaled, dst, rotationMatrix);
-	//END DEDIT
-
-
-	int increasingY = 0;
-
-    while(cvWaitKey(1) == -1) {
+//    while(cvWaitKey(1) == -1) {
         cvClearMemStorage(storage);
         // load an image  
         last_frame = clock();
@@ -177,32 +209,9 @@ int main (int argc, char * const argv[]) {
 
 		//img is what is actually being shown!
 
-	src = cvCloneImage(img);
-	
-	//update rotation matrix
-	if (increasingY) x = x + 0.0003;
-	else x = x - 0.0003;
-	if (x >= 0.001) increasingY = 0;
-	else if (x <= -0.001) increasingY = 1;
-
-	fillRotationArray(x, y, z, angle, rotArr);
-	rotationMatrix = cvMat(3, 3, CV_64FC1, rotArr);	
 
 
-//	translationMatrix = cvMat(3, 3, CV_64FC1, transArr);	
 
-	//before rotation we need to adjust img with translate so that we are rotating around the midpoint
-//	cvWarpPerspective(src, img, &rotationMatrix);
-//	cvWarpPerspective(src, img, &translationMatrix);	
-//	src = cvCloneImage(img);
-	//adjust img - do rotation
-	cvWarpPerspective(src, img, &rotationMatrix);
-//	cvWarpPerspective(src, img, &translationMatrix);	
-//	src = cvCloneImage(img);
-	//before rotation we need to adjust img with translate so that we are rotating around the midpoint
-//	cvWarpPerspective(src, img, &revTranslationMatrix);	
-
-	cvReleaseImage(&src);
 
 	//END DEDIT
 
@@ -213,19 +222,115 @@ int main (int argc, char * const argv[]) {
         cvPutText(img, text2, cvPoint(1, 48), &smallfont, cvScalar(0, 255, 0));
         cvPutText(img, text3, cvPoint(1, img->height-(25*2)+10), &smallfont, cvScalar(0, 255, 0));
         cvPutText(img, text4, cvPoint(1, img->height-15), &smallfont, cvScalar(0, 255, 0));
-        cvShowImage("Main Window", img );
-        if(++clocki >= 5) {
-            clocki = 0;
-            fps = 5*CLOCKS_PER_SEC/(int)(clock()-last_clock);
-            sprintf(text2, "%d fps on device %d", fps, device, last_frame/5, last_face/5);
-            sprintf(text3, "frame ticks wasted: %d", last_frame);
-            sprintf(text4, "face ticks wasted: %d", last_face);
-            last_clock = clock();
-        }
+  //      cvShowImage("Main Window", img );
+//        if(++clocki >= 5) {
+          //  clocki = 0;
+           // fps = 5*CLOCKS_PER_SEC/(int)(clock()-last_clock);
+          //  sprintf(text2, "%d fps on device %d", fps, device, last_frame/5, last_face/5);
+         //   sprintf(text3, "frame ticks wasted: %d", last_frame);
+        //    sprintf(text4, "face ticks wasted: %d", last_face);
+       //     last_clock = clock();
+      //  } 
+	
+
+	loadTexture_Ipl(img, &frameTex);
 
 
-    }
+/*
+	glPushMatrix();
+		glTranslatef(0, 0, -3);
+		glColor3f(1.0, 0.0, 0.0);
+		glutSolidCube(3);
+	glPopMatrix();
+*/
+
+
+	float quadWidth = 10.0f;
+	float distanceOut = 30.0f;
+	float quadHeight = 10.0f;
+
+
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-quadWidth, -quadHeight, -distanceOut);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-quadWidth, quadHeight, -distanceOut);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(quadWidth, quadHeight, -distanceOut);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(quadWidth, -quadHeight, -distanceOut);
+	glEnd();
+
+
+  //  }
 	// release the image
-	cvReleaseCapture(&capture);
+
+	
+	//END OLD MAIN
+
+	
+//	printf("HI DERE");
+	glutSwapBuffers();
+	glutPostRedisplay();
+
+}
+
+void idle(){
+   static int last_time = 0;
+   int time = glutGet(GLUT_ELAPSED_TIME);
+   int elapsed = time-last_time;
+   float delta_seconds = 0.001f*elapsed;
+   last_time = time;
+
+
+
+
+}
+
+void CreateGlutCallbacks()
+{
+    glutReshapeFunc(myReshape);
+    glutDisplayFunc(display);
+	glutIdleFunc(idle);
+	//trackball stuff removed for now
+//    glutMouseFunc(mouseButton);
+//    glutMotionFunc(mouseMotion);
+//	glutKeyboardFunc (keyboard);
+//	glutSpecialFunc (special_down);
+}
+
+void initGL()
+{
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST); 
+	glDisable(GL_LIGHTING); 
+}
+
+int main (int argc, char **argv) //char * const argv[]) {
+{
+	glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(480, 480);
+    glutCreateWindow("Not Sword Adventures!");
+
+	CreateGlutCallbacks();
+	initGL();
+
+    const char *facedatafile = "haarcascade_frontalface_alt.xml";
+    CvSeq *faces;
+    int iface;
+    cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
+    if(!cascade) {
+        fprintf(stderr, "DEATH: cascade failure!\n");
+        exit(1);
+    }
+
+	glutMainLoop();
+
+//	cvReleaseCapture(&capture);
+
+	printf("HI TEST TWO");
+//	ExitGlut();
+
 	return 0;
 }
