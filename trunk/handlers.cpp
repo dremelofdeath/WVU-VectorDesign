@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <atlbase.h>
 #include <atlconv.h>
-#include "visualstudio/TruePerspective.h"
+#include "TruePerspective.h"
 #define MAX_LOADSTRING 100
 #endif
 
@@ -57,7 +57,7 @@ void win32_idle_handle_messages() {
   MSG msg;
   if(!hAccelTable && !win32_get_hInstance()) {
     hAccelTable = LoadAccelerators(win32_get_hInstance(),
-                                   MAKEINTRESOURCE(IDC_NEBULAHORIZON));
+                                   MAKEINTRESOURCE(IDC_RENDERQUEUE));
   }
   if(hAccelTable) {
     while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
