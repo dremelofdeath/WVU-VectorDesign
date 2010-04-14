@@ -1,0 +1,30 @@
+﻿Build started 4/14/2010 1:36:01 AM.
+     1>Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\RenderQueue\RenderQueue.vcxproj" on node 64 (build target(s)).
+     1>_PrepareForBuild:
+         Touching "Release\RenderQueue.unsuccessfulbuild".
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt TruePerspective.cpp
+         TruePerspective.cpp
+       ResourceCompile:
+         All outputs are up-to-date.
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.exe" /INCREMENTAL:NO /NOLOGO freeglut.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\RenderQueue.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.lib" /MACHINE:X86 Release\RenderQueue.res
+         Release\handlers.obj
+         Release\KeyboardManager.obj
+         Release\nhz_common.obj
+         Release\Renderable.obj
+         Release\RenderQueue.obj
+         Release\TruePerspective.obj
+         Generating code
+         Finished generating code
+         RenderQueue.vcxproj -> C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.exe
+       Manifest:
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.exe;#1" /manifest Release\RenderQueue.exe.intermediate.manifest
+       _AfterBuild:
+         Deleting file "Release\RenderQueue.unsuccessfulbuild".
+         Touching "Release\RenderQueue.lastbuildstate".
+     1>Done Building Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\RenderQueue\RenderQueue.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.58
