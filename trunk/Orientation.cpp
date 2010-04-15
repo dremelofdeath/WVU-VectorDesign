@@ -2,11 +2,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/freeglut.h>
-#include <cv.h>
-#include <highgui.h>
 
 #include "Orientation.h"
 
