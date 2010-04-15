@@ -1,4 +1,8 @@
+#ifndef VECTOR_ORIENTATION_H
+#define VECTOR_ORIENTATION_H
+
 #include <GL/gl.h>
+#include <cv.h>
 
 #include "Renderable.h"
 
@@ -18,3 +22,5 @@ class Orientation : public Renderable
 
         ~Orientation();
 };
+
+#endif

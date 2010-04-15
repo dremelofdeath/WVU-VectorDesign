@@ -4,10 +4,10 @@
 #include <time.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "freeglut.h"
+#include <GL/freeglut.h>
+#include <cv.h>
+#include <highgui.h>
 
-#include "cv.h"
-#include "highgui.h"
 #include "Orientation.h"
 
 int Orientation::loadTexture_Ipl(IplImage *image, GLuint *text)
