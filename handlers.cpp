@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <atlbase.h>
 #include <atlconv.h>
-#include "TruePerspective.h"
+//#include "visualstudio/TruePerspective.h"
 #define MAX_LOADSTRING 100
 #endif
 
@@ -28,6 +28,7 @@
 #include "KeyboardManager.h"
 #include "RenderQueue.h"
 #include "nhz_common.h"
+#include "Orientation.h"
 
 static GLsizei winWidth = 800, winHeight = 600;
 static int window_id_main = 0;
@@ -57,7 +58,7 @@ void win32_idle_handle_messages() {
   MSG msg;
   if(!hAccelTable && !win32_get_hInstance()) {
     hAccelTable = LoadAccelerators(win32_get_hInstance(),
-                                   MAKEINTRESOURCE(IDC_RENDERQUEUE));
+                                   MAKEINTRESOURCE(IDC_NEBULAHORIZON));
   }
   if(hAccelTable) {
     while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -214,6 +215,7 @@ void main_springload() {
   init_opengl();
   
   //put standard main code here
+  Orientation orient;
 
 
   glutMainLoop();
