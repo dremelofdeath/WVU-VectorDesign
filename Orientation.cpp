@@ -116,7 +116,7 @@ void Orientation::render(void) const
   data      = (uchar *)img->imageData;
   // detect faces
   last_face = clock();
-  faces = cvHaarDetectObjects(scaled, cascade, storage, 1.2, 2,
+  faces = cvHaarDetectObjects(scaled, _cascade, storage, 1.2, 2,
                               CV_HAAR_DO_CANNY_PRUNING,
                               cvSize(img->width/16, img->height/16));
   last_face = clock()-last_face;
@@ -130,7 +130,7 @@ void Orientation::render(void) const
   }
 
   // show the image
-  sprintf(text, "%dx%d image, %d channels", height, width, channels);
+  sprintf_s(text, 256, "%dx%d image, %d channels", height, width, channels);
   cvPutText(img, text, cvPoint(0, 25), &font, cvScalar(0, 255, 0));
   cvPutText(img, text2, cvPoint(1, 48), &smallfont, cvScalar(0, 255, 0));
   cvPutText(img, text3, cvPoint(1, img->height-(25*2)+10), &smallfont, cvScalar(0, 255, 0));
@@ -145,7 +145,7 @@ void Orientation::render(void) const
   //     last_clock = clock();
   //  } 
 
-  loadTexture_Ipl(img, &frameTex);
+  loadTexture_Ipl(img, &_frameTex);
 
   /*
   glPushMatrix();
@@ -186,13 +186,6 @@ void Orientation::idle() {
   int elapsed = time-last_time;
   float delta_seconds = 0.001f*elapsed;
   last_time = time;
-}
-
-void Orientation::initGL()
-{
-  glDepthMask(GL_FALSE);
-  glDisable(GL_DEPTH_TEST); 
-  glDisable(GL_LIGHTING); 
 }
 
 int main (int argc, char **argv) //char * const argv[]) {
