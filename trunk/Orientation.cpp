@@ -5,12 +5,14 @@
 
 #include "Orientation.h"
 
-int Orientation::loadTexture_Ipl(IplImage *image, GLuint *text)
+
+//taken from http://blog.damiles.com/?p=9
+int Orientation::loadTexture_Ipl(IplImage* image, GLuint *text)
 {
 	if (image==NULL) return -1; 
 	glGenTextures(1, text);
  
-	glBindTexture( GL_TEXTURE_2D, *text ); //bind the texture to it's array
+	glBindTexture( GL_TEXTURE_2D, *text ); //bind the texture to its array
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
  
@@ -55,7 +57,7 @@ void Orientation::myReshape(int w, int h)
 
 void Orientation::render(void)
 {
-//	printf("THREETEST\n");
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_TEXTURE_2D);
