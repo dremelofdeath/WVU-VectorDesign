@@ -3,159 +3,134 @@
 #include <math.h>
 #include <time.h>
 
+#include "nhz_common.h"
 #include "Orientation.h"
 
-
-//taken from http://blog.damiles.com/?p=9
-void Orientation::genTexture_Ipl(IplImage* image, GLuint text)
-{
-  if (image==NULL) return; 
-  glGenTextures(1, &text);
-
-  glBindTexture( GL_TEXTURE_2D, text ); //bind the texture to it's array
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+Orientation::Orientation() {
+  initialize();
 }
 
-void Orientation::render(void) const
-{
-  //OLD MAIN
+Orientation::Orientation(int deviceID) {
+  initialize(deviceID);
+}
 
-  IplImage* img = 0;	
-  IplImage* scaled = 0; 
+Orientation::Orientation(int deviceID, GLuint frameTexture) {
+  initialize(deviceID, frameTexture);
+}
+
+Orientation::~Orientation() {
+  releaseCapture();
+  if(_frameTex != 0) {
+    glDeleteTextures(1, &_frameTex);
+  }
+  if(_scaledImg != 0) {
+    cvReleaseImage(&_scaledImg);
+  }
+}
+
+void Orientation::initialize() {
+  // we are going to lazily generate a texture so that we can use
+  // glTexSubImage2D()
+  initialize(0, 0);
+}
+
+void Orientation::initialize(int deviceID) {
+  // again, this is a lazy generation here
+  // see uploadTexture() to see what I mean
+  initialize(deviceID, 0);
+}
+
+void Orientation::initialize(int deviceID, GLuint frameTexture) {
+  static const char *facedatafile = "haarcascade_frontalface_alt.xml";
+  _capture = 0; // please just don't touch this
+  setDevice(deviceID);
+  _scaledImg = 0; // or this
+  _frameTex = frameTexture;
+  cvInitFont(&_font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
+  cvInitFont(&_smallfont, CV_FONT_HERSHEY_DUPLEX, 0.75, 0.75, 0, 1);
+  _storage = cvCreateMemStorage(0);
+  _cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
+  if(!_cascade) {
+    NHZ_ERR("DEATH: cascade failure!\n");
+  }
+}
+
+void Orientation::setDevice(int deviceID) {
+  if(deviceID != _deviceID) {
+    _deviceID = deviceID;
+    restartCapture();
+  }
+}
+
+//taken from http://blog.damiles.com/?p=9
+void Orientation::uploadTexture(IplImage* img) {
+  GLenum errorCode = GL_NO_ERROR;
+  if(_frameTex == 0) {
+    regenerateTexture();
+    configureTextureParameters();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0,
+                 GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
+    if((errorCode = glGetError()) != GL_NO_ERROR) {
+      NHZ_ERR("%s (image)\n", (const char *)gluErrorString(errorCode));
+    }
+  } else {
+    configureTextureParameters();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img->width, img->height, GL_BGR_EXT,
+                    GL_UNSIGNED_BYTE, img->imageData);
+    if((errorCode = glGetError()) != GL_NO_ERROR) {
+      NHZ_ERR("%s (subimage)\n", (const char *)gluErrorString(errorCode));
+    }
+  }
+}
+
+void Orientation::render(void) const {
   char text[256] = {0};
   char text2[256] = {0};
   char text3[256] = {0};
   char text4[256] = {0};
-  int height,width,step,channels,fps;
-  clock_t last_clock, last_frame=0, last_face=0;
-  int clocki = 0;
-  uchar *data;
-  int device;
-  CvCapture *capture;
-  CvFont font, smallfont;
-  // load up the face detection data
-  //    CvHaarClassifierCascade *cascade;
 
-  //  const char *facedatafile = "haarcascade_frontalface_alt.xml";
-  CvMemStorage *storage;
-  CvSeq *faces;
-  int iface;
-  //    printf("CLOCKS_PER_SEC: %d", CLOCKS_PER_SEC);
-  // cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
-  // if(!cascade) {
-  //     fprintf(stderr, "DEATH: cascade failure!\n");
-  //     exit(1);
-  //   }
-  // initlialize video capture with default device (0)
-  device = 0;    
-
-  // use for default resolution
-  capture = cvCaptureFromCAM(device);
+  //int height,width,step,channels;//,fps;
+  //uchar *data;
 
   // use for custom resolution
   //capture = cvCreateCameraCapture(device);
   //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 800);
   //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 600);
 
-  // initialize a font
-  cvInitFont(&font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
-  cvInitFont(&smallfont, CV_FONT_HERSHEY_DUPLEX, 0.75, 0.75, 0, 1);
-  storage = cvCreateMemStorage(0);
-  img = cvQueryFrame(capture);
-  scaled = cvCreateImage(cvSize(img->width/2, img->height/2), 8, 3);
-  //DEDIT
-  //create clone of image for src - use for rotations
-  IplImage* src;
-  src = cvCloneImage(img);
-  //END DEDIT
-  // create a window
-  //	cvNamedWindow("Main Window", CV_WINDOW_AUTOSIZE); 
-  //	cvMoveWindow("Main Window", 100, 100);
-  last_clock = clock();
-
-
-  //DEDIT
-
-  //x, y, and z represent a unit vector
-  //angle is the angle of rotation around this unit vector
-  double x, y, z, angle;
-  x = 0.0;
-  y = 0.0;
-  z = 0.0;
-  angle = 45.0;
-
-  //BUILD ROTATION MATRIX:
-  //0 1 2
-  //3 4 5
-  //6 7 8
-
-  //    while(cvWaitKey(1) == -1) {
-  cvClearMemStorage(storage);
-  // load an image  
-  last_frame = clock();
-  img = cvQueryFrame(capture);
-  last_frame = clock()-last_frame;
-  if(!img) {
-    printf("Could not query frame");
-    exit(0);
-  }
-  cvPyrDown(img, scaled);
   // get the image data
-  height    = img->height;
+  /*height    = img->height;
   width     = img->width;
   step      = img->widthStep;
   channels  = img->nChannels;
-  data      = (uchar *)img->imageData;
-  // detect faces
-  last_face = clock();
-  faces = cvHaarDetectObjects(scaled, _cascade, storage, 1.2, 2,
-                              CV_HAAR_DO_CANNY_PRUNING,
-                              cvSize(img->width/16, img->height/16));
-  last_face = clock()-last_face;
-  // draw face rects
-  for(iface = 0; iface < faces->total; iface++) {
-    CvRect face_rect = *(CvRect*)cvGetSeqElem(faces, iface);
-    cvRectangle(img, cvPoint(face_rect.x*2,face_rect.y*2),
-                cvPoint(2*(face_rect.x+face_rect.width),
-                        2*(face_rect.y+face_rect.height)),
-                CV_RGB(0, 255, 0), 3);
-  }
+  data      = (uchar *)img->imageData;*/
 
   // show the image
-  sprintf_s(text, 256, "%dx%d image, %d channels", height, width, channels);
-  cvPutText(img, text, cvPoint(0, 25), &font, cvScalar(0, 255, 0));
-  cvPutText(img, text2, cvPoint(1, 48), &smallfont, cvScalar(0, 255, 0));
-  cvPutText(img, text3, cvPoint(1, img->height-(25*2)+10), &smallfont, cvScalar(0, 255, 0));
-  cvPutText(img, text4, cvPoint(1, img->height-15), &smallfont, cvScalar(0, 255, 0));
-  //      cvShowImage("Main Window", img );
-  //        if(++clocki >= 5) {
-  //  clocki = 0;
-  // fps = 5*CLOCKS_PER_SEC/(int)(clock()-last_clock);
-  //  sprintf(text2, "%d fps on device %d", fps, device, last_frame/5, last_face/5);
-  //   sprintf(text3, "frame ticks wasted: %d", last_frame);
-  //    sprintf(text4, "face ticks wasted: %d", last_face);
-  //     last_clock = clock();
-  //  } 
-
- 
-//  genTexture_Ipl(img, &_frameTex);    DO THIS IN THE INIT
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
-
   /*
-  glPushMatrix();
-  glTranslatef(0, 0, -3);
-  glColor3f(1.0, 0.0, 0.0);
-  glutSolidCube(3);
-  glPopMatrix();
-  */
+  sprintf_s(text, 256, "%dx%d image, %d channels", height, width, channels);
+  cvPutText(img, text, cvPoint(0, 25), &_font, cvScalar(0, 255, 0));
+  cvPutText(img, text2, cvPoint(1, 48), &_smallfont, cvScalar(0, 255, 0));
+  cvPutText(img, text3, cvPoint(1, img->height-(25*2)+10), &_smallfont,
+            cvScalar(0, 255, 0));
+  cvPutText(img, text4, cvPoint(1, img->height-15), &_smallfont,
+            cvScalar(0, 255, 0));
+  cvShowImage("Main Window", img );
+
+  if(++clocki >= 5) {
+    clocki = 0;
+    fps = 5*CLOCKS_PER_SEC/(int)(clock()-last_clock);
+    sprintf(text2, "%d fps on device %d", fps, device,
+            last_frame/5, last_face/5);
+    sprintf(text3, "frame ticks wasted: %d", last_frame);
+    sprintf(text4, "face ticks wasted: %d", last_face);
+    last_clock = clock();
+  }*/
+
 
   float quadWidth = 10.0f;
   float distanceOut = 30.0f;
   float quadHeight = 10.0f;
+
+  configureTextureParameters();
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
@@ -167,25 +142,66 @@ void Orientation::render(void) const
   glTexCoord2f(1.0f, 1.0f);
   glVertex3f(quadWidth, -quadHeight, -distanceOut);
   glEnd();
-
-  //  }
-  // release the image
-
-  //END OLD MAIN
-
-  //	printf("HI DERE");
-  glutSwapBuffers();
-  glutPostRedisplay();
 }
 
-void Orientation::idle() {
-  static int last_time = 0;
-  int time = glutGet(GLUT_ELAPSED_TIME);
-  int elapsed = time-last_time;
-  float delta_seconds = 0.001f*elapsed;
-  last_time = time;
+void Orientation::idle(const int elapsed) {
+  int iface;
+  _img = cvQueryFrame(_capture);
+  if(!_img) {
+    NHZ_ERR("Could not query frame.\n");
+  }
+
+  if(_scaledImg == 0) {
+    _scaledImg = cvCreateImage(cvSize(_img->width/2, _img->height/2), 8, 3);
+    if(!_scaledImg) {
+      NHZ_ERR("Couldn't create the scaled image.\n");
+    }
+  }
+
+  cvClearMemStorage(_storage);
+  cvPyrDown(_img, _scaledImg);
+
+  // detect faces
+  CvSeq *faces = cvHaarDetectObjects(_scaledImg, _cascade, _storage, 1.2, 2,
+                                     CV_HAAR_DO_CANNY_PRUNING,
+                                     cvSize(_img->width/16, _img->height/16));
+
+  // draw face rects
+  for(iface = 0; iface < faces->total; iface++) {
+    CvRect face_rect = *(CvRect*)cvGetSeqElem(faces, iface);
+    cvRectangle(_img, cvPoint(face_rect.x*2,face_rect.y*2),
+                cvPoint(2*(face_rect.x+face_rect.width),
+                        2*(face_rect.y+face_rect.height)),
+                CV_RGB(0, 255, 0), 3);
+  }
+
+  uploadTexture(_img);
 }
 
+void Orientation::regenerateTexture() {
+  glGenTextures(1, &_frameTex);
+}
+
+void Orientation::configureTextureParameters() const {
+  glBindTexture(GL_TEXTURE_2D, _frameTex); // bind the texture to its array
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+}
+
+void Orientation::restartCapture() {
+  // use for default resolution
+  releaseCapture();
+  _capture = cvCaptureFromCAM(_deviceID);
+}
+
+void Orientation::releaseCapture() {
+  if(_capture != 0) {
+    cvReleaseCapture(&_capture);
+  }
+}
+
+/*
 int main (int argc, char **argv) //char * const argv[]) {
 {
   glutInit(&argc, argv);
@@ -196,21 +212,15 @@ int main (int argc, char **argv) //char * const argv[]) {
   CreateGlutCallbacks();
   initGL();
 
-  const char *facedatafile = "haarcascade_frontalface_alt.xml";
   CvSeq *faces;
   int iface;
-  cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
-  if(!cascade) {
-    fprintf(stderr, "DEATH: cascade failure!\n");
-    exit(1);
-  }
 
 
   glutMainLoop();
 
-  //	cvReleaseCapture(&capture);
 
   //	ExitGlut();
 
   return 0;
 }
+*/

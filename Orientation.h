@@ -14,13 +14,30 @@ class Orientation : public Renderable
 {
   public:
     Orientation();
-    void genTexture_Ipl(IplImage *image, GLuint text);
-    void render(void) const;
-    void idle();
+    Orientation(int deviceID);
+    Orientation(int deviceID, GLuint frameTexture);
     ~Orientation();
+    virtual void initialize();
+    virtual void initialize(int deviceID);
+    virtual void initialize(int deviceID, GLuint frameTexture);
+    virtual void setDevice(int deviceID);
+    virtual void uploadTexture(IplImage* img);
+    virtual void render() const;
+    virtual void idle(const int elapsed);
+  protected:
+    virtual void regenerateTexture();
+    virtual void configureTextureParameters() const;
+    virtual void restartCapture();
+    virtual void releaseCapture();
   private:
+    int _deviceID;
     CvHaarClassifierCascade* _cascade;
+    CvMemStorage* _storage;
+    CvCapture* _capture;
 		GLuint _frameTex;
+    CvFont _font, _smallfont;
+    IplImage* _img;
+    IplImage* _scaledImg;
 };
 
 #endif
