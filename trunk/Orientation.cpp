@@ -7,9 +7,9 @@
 
 
 //taken from http://blog.damiles.com/?p=9
-int Orientation::loadTexture_Ipl(IplImage* image, GLuint *text)
+void Orientation::loadTexture_Ipl(IplImage* image, GLuint *text)
 {
-  if (image==NULL) return -1; 
+  if (image==NULL) return; 
   glGenTextures(1, text);
 
   glBindTexture( GL_TEXTURE_2D, *text ); //bind the texture to it's array
@@ -20,8 +20,6 @@ int Orientation::loadTexture_Ipl(IplImage* image, GLuint *text)
 
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, image->imageData);
-
-  return 0;
 }
 
 void Orientation::render(void) const
