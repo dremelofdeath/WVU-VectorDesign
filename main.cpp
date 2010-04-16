@@ -16,6 +16,13 @@
 #include "cv.h"
 #include "highgui.h"
 
+//DEDIT TEST STUFF
+
+static int decreasingAng = 0;
+static float rotateAngle = 0.0f;
+
+//END
+
 static CvHaarClassifierCascade *cascade;
 
 static float ratio;
@@ -76,6 +83,38 @@ void myReshape(int w, int h)
 		eyeX + centX, eyeY + centY, eyeZ + centZ,
 		0.0f, 1.0f, 0.0f);
 
+
+}
+
+void drawPanel()
+{
+	float quadWidth = 10.0f;
+	float distanceOut = 30.0f;
+	float quadHeight = 10.0f;
+
+	/*
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-quadWidth, -quadHeight, -distanceOut);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-quadWidth, quadHeight, -distanceOut);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(quadWidth, quadHeight, -distanceOut);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(quadWidth, -quadHeight, -distanceOut);
+	glEnd();
+	*/
+
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-quadWidth, -quadHeight, 0);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-quadWidth, quadHeight, 0);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(quadWidth, quadHeight, 0);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(quadWidth, -quadHeight, 0);
+	glEnd();
 
 }
 
@@ -224,13 +263,13 @@ void display(void)
         cvPutText(img, text4, cvPoint(1, img->height-15), &smallfont, cvScalar(0, 255, 0));
   //      cvShowImage("Main Window", img );
 //        if(++clocki >= 5) {
-          //  clocki = 0;
-           // fps = 5*CLOCKS_PER_SEC/(int)(clock()-last_clock);
-          //  sprintf(text2, "%d fps on device %d", fps, device, last_frame/5, last_face/5);
-         //   sprintf(text3, "frame ticks wasted: %d", last_frame);
-        //    sprintf(text4, "face ticks wasted: %d", last_face);
-       //     last_clock = clock();
-      //  } 
+ //           clocki = 0;
+  //          fps = 5*CLOCKS_PER_SEC/(int)(clock()-last_clock);
+   //         sprintf(text2, "%d fps on device %d", fps, device, last_frame/5, last_face/5);
+    //        sprintf(text3, "frame ticks wasted: %d", last_frame);
+     //       sprintf(text4, "face ticks wasted: %d", last_face);
+      //      last_clock = clock();
+       // } 
 	
 
 	loadTexture_Ipl(img, &frameTex);
@@ -245,21 +284,19 @@ void display(void)
 */
 
 
-	float quadWidth = 10.0f;
-	float distanceOut = 30.0f;
-	float quadHeight = 10.0f;
+	if (rotateAngle > 160) decreasingAng = 1;
+	if (rotateAngle < -160) decreasingAng = 0;
 
+	if (decreasingAng) rotateAngle = rotateAngle - 1;
+	else rotateAngle = rotateAngle + 1;
 
-	glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(-quadWidth, -quadHeight, -distanceOut);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(-quadWidth, quadHeight, -distanceOut);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(quadWidth, quadHeight, -distanceOut);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(quadWidth, -quadHeight, -distanceOut);
-	glEnd();
+	glPushMatrix();
+		glTranslatef(0, 0, -30);
+		glRotatef(rotateAngle, 0, 1, 0);
+		drawPanel();
+//		glTranslatef(10, 10, 0);
+//		glTranslatef(0, 0, -30);
+	glPopMatrix();
 
 
   //  }
