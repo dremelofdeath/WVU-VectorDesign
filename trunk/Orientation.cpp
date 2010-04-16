@@ -24,20 +24,6 @@ int Orientation::loadTexture_Ipl(IplImage* image, GLuint *text)
 	return 0;
 }
 
-int Orientation::fillRotationArray(double x, double y, double z, double angle, double rotArr[9])
-{
-	rotArr[0] = 1 + (1-cos(angle))*(x*x-1);
-	rotArr[1] = -z*sin(angle)+(1-cos(angle))*x*y;
-	rotArr[2] = y*sin(angle)+(1-cos(angle))*x*z;
-	rotArr[3] = z*sin(angle)+(1-cos(angle))*x*y;
-	rotArr[4] = 1 + (1-cos(angle))*(y*y-1);
-	rotArr[5] = -x*sin(angle)+(1-cos(angle))*y*z;
-	rotArr[6] = -y*sin(angle)+(1-cos(angle))*x*z;
-	rotArr[7] = x*sin(angle)+(1-cos(angle))*y*z;
-	rotArr[8] = 1 + (1-cos(angle))*(z*z-1);
-	return 0;
-}
-
 void Orientation::myReshape(int w, int h)
 {
 	if (h == 0) h = 1;
@@ -48,11 +34,9 @@ void Orientation::myReshape(int w, int h)
 	gluPerspective(45, ratio, 0.01, 500);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(eyeX, eyeY, eyeZ, 
-		eyeX + centX, eyeY + centY, eyeZ + centZ,
+	gluLookAt(0, 0, 0, 
+		0, 0, -1,
 		0.0f, 1.0f, 0.0f);
-
-
 }
 
 void Orientation::render(void)
@@ -61,12 +45,6 @@ void Orientation::render(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_TEXTURE_2D);
-
-
-
-
-
-
 
 
 	//OLD MAIN
@@ -261,18 +239,6 @@ void Orientation::idle(){
 
 
 
-}
-
-void Orientation::CreateGlutCallbacks()
-{
-    //glutReshapeFunc(myReshape);
-    //glutDisplayFunc(display);
-	//glutIdleFunc(idle);
-	//trackball stuff removed for now
-//    glutMouseFunc(mouseButton);
-//    glutMotionFunc(mouseMotion);
-//	glutKeyboardFunc (keyboard);
-//	glutSpecialFunc (special_down);
 }
 
 void Orientation::initGL()
