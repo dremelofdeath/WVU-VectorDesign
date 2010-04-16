@@ -14,8 +14,7 @@ class Orientation : public Renderable
 {
   public:
     Orientation();
-    int loadTexture_Ipl(IplImage *image, GLuint *text);
-    int fillRotationArray(double x, double y, double z, double angle, double rotArr[9]);
+    void loadTexture_Ipl(IplImage *image, GLuint *text);
     void render(void) const;
     void idle();
     ~Orientation();
