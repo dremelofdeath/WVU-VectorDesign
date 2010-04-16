@@ -7,19 +7,16 @@
 
 
 //taken from http://blog.damiles.com/?p=9
-void Orientation::loadTexture_Ipl(IplImage* image, GLuint *text)
+void Orientation::genTexture_Ipl(IplImage* image, GLuint text)
 {
   if (image==NULL) return; 
-  glGenTextures(1, text);
+  glGenTextures(1, &text);
 
-  glBindTexture( GL_TEXTURE_2D, *text ); //bind the texture to it's array
+  glBindTexture( GL_TEXTURE_2D, text ); //bind the texture to it's array
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, image->imageData);
 }
 
 void Orientation::render(void) const
@@ -143,7 +140,10 @@ void Orientation::render(void) const
   //     last_clock = clock();
   //  } 
 
-  loadTexture_Ipl(img, &_frameTex);
+ 
+//  genTexture_Ipl(img, &_frameTex);    DO THIS IN THE INIT
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
 
   /*
   glPushMatrix();
@@ -204,6 +204,7 @@ int main (int argc, char **argv) //char * const argv[]) {
     fprintf(stderr, "DEATH: cascade failure!\n");
     exit(1);
   }
+
 
   glutMainLoop();
 
