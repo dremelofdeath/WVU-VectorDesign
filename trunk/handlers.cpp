@@ -216,7 +216,7 @@ void main_springload() {
   
   //put standard main code here
   Orientation orient;
-
+  RenderQueue::getInstance()->enqueue(orient);
 
   glutMainLoop();
 }
