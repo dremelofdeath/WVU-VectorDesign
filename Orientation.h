@@ -14,6 +14,8 @@ class Orientation : public Renderable
 {   public:
         Orientation();
 
+		GLuint frameTex;
+
         int loadTexture_Ipl(IplImage *image, GLuint *text);
         int fillRotationArray(double x, double y, double z, double angle, double rotArr[9]);
         void myReshape(int w, int h);
