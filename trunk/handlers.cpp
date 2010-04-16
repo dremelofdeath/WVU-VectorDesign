@@ -184,6 +184,7 @@ int create_window(const char *title, int xpos, int ypos, int ww, int wh) {
   glDepthMask(GL_FALSE);
   glDisable(GL_DEPTH_TEST); 
   glDisable(GL_LIGHTING); 
+  glEnable(GL_TEXTURE_2D);
   return ret;
 }
 
