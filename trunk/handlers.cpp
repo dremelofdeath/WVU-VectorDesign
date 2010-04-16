@@ -181,6 +181,9 @@ int create_window(const char *title, int xpos, int ypos, int ww, int wh) {
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
   glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
   glEnable(GL_NORMALIZE);*/
+  glDepthMask(GL_FALSE);
+  glDisable(GL_DEPTH_TEST); 
+  glDisable(GL_LIGHTING); 
   return ret;
 }
 
