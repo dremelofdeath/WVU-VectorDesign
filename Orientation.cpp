@@ -3,6 +3,9 @@
 #include <math.h>
 #include <time.h>
 
+#include <windows.h>
+#include <GL/gl.h>
+
 #include "nhz_common.h"
 #include "Orientation.h"
 
@@ -46,12 +49,20 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   setDevice(deviceID);
   _scaledImg = 0; // or this
   _frameTex = frameTexture;
+
   cvInitFont(&_font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
   cvInitFont(&_smallfont, CV_FONT_HERSHEY_DUPLEX, 0.75, 0.75, 0, 1);
+
   _storage = cvCreateMemStorage(0);
+
   _cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
   if(!_cascade) {
     NHZ_ERR("DEATH: cascade failure!\n");
+  }
+
+  _usingPadding = atof((const char *)glGetString(GL_VERSION)) < 2.0f;
+  if(_usingPadding) {
+    _padder = new PixelPadder;
   }
 }
 
@@ -65,6 +76,10 @@ void Orientation::setDevice(int deviceID) {
 //taken from http://blog.damiles.com/?p=9
 void Orientation::uploadTexture(IplImage* img) {
   GLenum errorCode = GL_NO_ERROR;
+  if(_usingPadding) {
+    _padder->padWithImage(img);
+    img = _padder->getImage();
+  }
   if(_frameTex == 0) {
     regenerateTexture();
     configureTextureParameters();
@@ -97,6 +112,10 @@ void Orientation::render(void) const {
   float quadWidth = 10.0f;
   float distanceOut = 30.0f;
   float quadHeight = 10.0f;
+
+  if(_usingPadding) {
+    glScalef(2.0f, 2.0f, 1.0f);
+  }
 
   configureTextureParameters();
 

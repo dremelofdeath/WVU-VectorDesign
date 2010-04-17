@@ -87,6 +87,7 @@
     <ClInclude Include="KeyboardManager.h" />
     <ClInclude Include="nhz_common.h" />
     <ClInclude Include="Orientation.h" />
+    <ClInclude Include="PixelPadder.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="Resource.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="KeyboardManager.cpp" />
     <ClCompile Include="nhz_common.cpp" />
     <ClCompile Include="Orientation.cpp" />
+    <ClCompile Include="PixelPadder.cpp" />
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="TruePerspective.cpp" />
