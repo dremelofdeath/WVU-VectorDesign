@@ -83,6 +83,11 @@ void Orientation::uploadTexture(IplImage* img) {
   }
 }
 
+void Orientation::performRotation() const
+{
+}
+
+
 void Orientation::render(void) const {
   char text[256] = {0};
   char text2[256] = {0};
@@ -95,15 +100,17 @@ void Orientation::render(void) const {
 
   configureTextureParameters();
 
+  glTranslatef(0, 0, -30);
+  performRotation();
   glBegin(GL_QUADS);
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(-quadWidth, -quadHeight, -distanceOut);
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(-quadWidth, quadHeight, -distanceOut);
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(quadWidth, quadHeight, -distanceOut);
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(quadWidth, -quadHeight, -distanceOut);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(-quadWidth, -quadHeight, 0);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(-quadWidth, quadHeight, 0);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(quadWidth, quadHeight, 0);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(quadWidth, -quadHeight, 0);
   glEnd();
 }
 
