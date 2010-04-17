@@ -89,43 +89,6 @@ void Orientation::render(void) const {
   char text3[256] = {0};
   char text4[256] = {0};
 
-  //int height,width,step,channels;//,fps;
-  //uchar *data;
-
-  // use for custom resolution
-  //capture = cvCreateCameraCapture(device);
-  //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 800);
-  //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 600);
-
-  // get the image data
-  /*height    = img->height;
-  width     = img->width;
-  step      = img->widthStep;
-  channels  = img->nChannels;
-  data      = (uchar *)img->imageData;*/
-
-  // show the image
-  /*
-  sprintf_s(text, 256, "%dx%d image, %d channels", height, width, channels);
-  cvPutText(img, text, cvPoint(0, 25), &_font, cvScalar(0, 255, 0));
-  cvPutText(img, text2, cvPoint(1, 48), &_smallfont, cvScalar(0, 255, 0));
-  cvPutText(img, text3, cvPoint(1, img->height-(25*2)+10), &_smallfont,
-            cvScalar(0, 255, 0));
-  cvPutText(img, text4, cvPoint(1, img->height-15), &_smallfont,
-            cvScalar(0, 255, 0));
-  cvShowImage("Main Window", img );
-
-  if(++clocki >= 5) {
-    clocki = 0;
-    fps = 5*CLOCKS_PER_SEC/(int)(clock()-last_clock);
-    sprintf(text2, "%d fps on device %d", fps, device,
-            last_frame/5, last_face/5);
-    sprintf(text3, "frame ticks wasted: %d", last_frame);
-    sprintf(text4, "face ticks wasted: %d", last_face);
-    last_clock = clock();
-  }*/
-
-
   float quadWidth = 10.0f;
   float distanceOut = 30.0f;
   float quadHeight = 10.0f;
@@ -200,27 +163,3 @@ void Orientation::releaseCapture() {
     cvReleaseCapture(&_capture);
   }
 }
-
-/*
-int main (int argc, char **argv) //char * const argv[]) {
-{
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-  glutInitWindowSize(480, 480);
-  glutCreateWindow("Not Sword Adventures!");
-
-  CreateGlutCallbacks();
-  initGL();
-
-  CvSeq *faces;
-  int iface;
-
-
-  glutMainLoop();
-
-
-  //	ExitGlut();
-
-  return 0;
-}
-*/
