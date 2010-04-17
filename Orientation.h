@@ -29,6 +29,8 @@ class Orientation : public Renderable
     virtual void configureTextureParameters() const;
     virtual void restartCapture();
     virtual void releaseCapture();
+	virtual void performRotation() const;
+
   private:
     int _deviceID;
     CvHaarClassifierCascade* _cascade;
