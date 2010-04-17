@@ -11,15 +11,16 @@ using std::string;
 
 class Socket
 { public:
-    Socket();
-    Socket(string IP, string port);
+    Socket() throw(NetworkException);
+    Socket(string ip, string port) throw(NetworkException);
 
-    virtual void connect(string IP, string port);
-    virtual void send(char const * const data);
-    virtual void receive(char const * data);
+    virtual void connect(string ip, string port);
+    virtual int send(char const * const data, int length) = 0;
+    virtual int receive(char const * data, int length) = 0;
+    virtual void disconnect() = 0;
 
   protected:
-    string IP;
+    string ip;
     string port;
 
     WSADATA wsaData;

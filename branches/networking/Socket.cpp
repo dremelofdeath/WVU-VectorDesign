@@ -2,23 +2,17 @@
 
 Socket::Socket()
 { int result = WSAStartup(MAKEWORD(2,2), &wsaData);
-  if(result != 0)
-  { 
-  }
+  if(result != 0) throw NetworkException("WSAStartup failed!");
 }
 
-Socket::Socket(string IP, string port)
-{ 
+Socket::Socket(string ip, string port)
+{ int result = WSAStartup(MAKEWORD(2,2), &wsaData);
+  if(result != 0) throw NetworkException("WSAStartup failed!");
+
+  connect(ip, port);
 }
 
-void Socket::connect(string IP, string port)
-{ 
-}
-
-void Socket::send(char const * const data)
-{
-}
-
-void Socket::receive(char const * data)
-{
+void Socket::connect(string ip, string port)
+{ this->ip = ip;
+  this->port = port;
 }
