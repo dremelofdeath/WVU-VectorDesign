@@ -9,6 +9,7 @@
 #include <highgui.h>
 
 #include "Renderable.h"
+#include "PixelPadder.h"
 
 class Orientation : public Renderable
 {
@@ -33,6 +34,8 @@ class Orientation : public Renderable
 
   private:
     int _deviceID;
+    bool _usingPadding;
+    PixelPadder* _padder;
     CvHaarClassifierCascade* _cascade;
     CvMemStorage* _storage;
     CvCapture* _capture;

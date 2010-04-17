@@ -51,6 +51,9 @@
     <ClInclude Include="TruePerspective.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PixelPadder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RenderQueue.rc">
@@ -77,6 +80,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Orientation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelPadder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
