@@ -9,10 +9,9 @@ class TCPSocket : public Socket
     TCPSocket();
     TCPSocket(string ip, string port);
 
-    virtual void connect(string ip, string port);
-    virtual void serve();
-    virtual int send(char * const data, int length);
-    virtual int receive(char * data, int length);
+    virtual void connectSocket(string ip, string port);
+    virtual int sendData(char const * const data, int length);
+    virtual int receiveData(char * const data, int length);
     virtual void disconnect();
 
   protected:
@@ -20,7 +19,7 @@ class TCPSocket : public Socket
     void connectSocket();
 
     WSADATA wsaData;
-    //struct addrinfo *result;
+    struct addrinfo *result;
     struct addrinfo *ptr;
     struct addrinfo hints;
     SOCKET sock;

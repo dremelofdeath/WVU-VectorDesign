@@ -8,7 +8,7 @@ TCPSocket::TCPSocket(string ip, string port) : Socket(ip, port)
 {
 }
 
-void TCPSocket::connect(string ip, string port)
+void TCPSocket::connectSocket(string ip, string port)
 { // This is very bad to use. It zeros the memory pointed to. We need a platform
   // independent solution, as this likely only works for Windows.
 	ZeroMemory(&hints, sizeof(hints));
@@ -16,7 +16,7 @@ void TCPSocket::connect(string ip, string port)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-  struct adderinfo *result;
+  result = NULL;
 	int error = getaddrinfo(ip.c_str(), port.c_str(), &hints, &result);
 	if(error != 0)
 	{	string str= "getaddrinfo failed: "  + error;
@@ -34,32 +34,45 @@ void TCPSocket::connect(string ip, string port)
 		throw NetworkException();
 	}
 
+  error = connect(sock, ptr->ai_addr, (int)ptr->ai_addrlen);
+  if(error == SOCKET_ERROR)
+  {   closesocket(sock);
+      sock = INVALID_SOCKET;
+  }
+  
+  freeaddrinfo(result);
+  if(sock == INVALID_SOCKET)
+  {   WSACleanup();
+      throw NetworkException("Unable to connect to server.");
+  }
+
   connectSocket();
 }
 
-void TCPSocket::createSocket()
-{ sock = INVALID_SOCKET;
-	ptr = result;
-	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-	if(ConnectSocket == INVALID_SOCKET)
-	{	cout << "Error at socket(): " << WSAGetLastError() << endl;
-		freeaddrinfo(result);
-		WSACleanup();
-		throw NetworkException();
-	}
+int TCPSocket::sendData(char const * const data, int length)
+{ int bytes = send(sock, data, length, 0);
+  if(bytes == SOCKET_ERROR)
+  { string str = "Send failed: " + WSAGetLastError();
+    throw NetworkException(str);
+  }
 }
 
-void TCPSocket::connectSocket()
-{   int error = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
-    if(error == SOCKET_ERROR)
-    {   closesocket(ConnectSocket);
-        ConnectSocket = INVALID_SOCKET;
-    }
-
-    freeaddrinfo(result);
-    if(ConnectSocket == INVALID_SOCKET)
-    {   cout << "Unable to connect to server." << endl;
-        WSACleanup();
-        throw NetworkException();
-    }
+int TCPSocket::receiveData(char * const data, int length)
+{ int bytes = 0;
+  bytes = recv(sock, data, length, 0);
+  if(bytes < 0)
+  { string str = "Receive failed: " + WSAGetLastError();
+    throw NetworkException(str);
+  }
 }
+
+void TCPSocket::disconnect()
+{ int error = shutdown(sock, SD_SEND);
+  if(error == SOCKET_ERROR)
+  { string str = "Shutdown failed: " + WSAGetLastError();
+    closesocket(sock);
+    throw NetworkException(str);
+  }
+}
+
+
