@@ -30,11 +30,11 @@ class Orientation : public Renderable
     virtual void configureTextureParameters() const;
     virtual void restartCapture();
     virtual void releaseCapture();
-	virtual void performRotation() const;
+    virtual void performRotation() const;
 
   private:
     int _deviceID;
-    bool _usingPadding;
+    bool _usingPadding, _useSubImagePadding;
     PixelPadder* _padder;
     CvHaarClassifierCascade* _cascade;
     CvMemStorage* _storage;

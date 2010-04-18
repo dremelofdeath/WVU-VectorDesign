@@ -22,14 +22,29 @@ void PixelPadder::initialize(int wh) {
   _padding = 0;
   _depth = 0;
   _channels = 0;
+  _isDrawing = true;
   setDimensions(wh);
 }
 
+void PixelPadder::stopDrawing() {
+  _isDrawing = false;
+}
+
+void PixelPadder::resumeDrawing() {
+  _isDrawing = true;
+}
+
+bool PixelPadder::getDrawingState() {
+  return _isDrawing;
+}
+
 void PixelPadder::padWithImage(IplImage* image) {
-  if(areImagePropertiesChanging(image)) {
-    createPaddingWithDimensions(_dimensions, image);
+  if(getDrawingState()) {
+    if(areImagePropertiesChanging(image)) {
+      createPaddingWithDimensions(_dimensions, image);
+    }
+    drawImageCentered(image);
   }
-  drawImageCentered(image);
 }
 
 void PixelPadder::setDimensions(int wh) {

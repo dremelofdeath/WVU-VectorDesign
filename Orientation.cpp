@@ -44,7 +44,14 @@ void Orientation::initialize(int deviceID) {
 }
 
 void Orientation::initialize(int deviceID, GLuint frameTexture) {
+
   static const char *facedatafile = "haarcascade_frontalface_alt.xml";
+  static double glVersionFloat = 0.0;
+
+  if(glVersionFloat == 0.0) {
+    glVersionFloat = atof((const char *)glGetString(GL_VERSION));
+  }
+
   _capture = 0; // please just don't touch this
   setDevice(deviceID);
   _scaledImg = 0; // or this
@@ -60,10 +67,16 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
     NHZ_ERR("DEATH: cascade failure!\n");
   }
 
-  _usingPadding = atof((const char *)glGetString(GL_VERSION)) < 2.0f;
+  _useSubImagePadding = false;
+  _usingPadding = glVersionFloat < 2.0f;
   if(_usingPadding) {
     _padder = new PixelPadder;
+    if(glVersionFloat > 1.099f) {
+      _useSubImagePadding = true;
+      _padder->stopDrawing();
+    }
   }
+
 }
 
 void Orientation::setDevice(int deviceID) {
@@ -76,22 +89,40 @@ void Orientation::setDevice(int deviceID) {
 //taken from http://blog.damiles.com/?p=9
 void Orientation::uploadTexture(IplImage* img) {
   GLenum errorCode = GL_NO_ERROR;
-  if(_usingPadding) {
+  if(_usingPadding && !_useSubImagePadding) {
     _padder->padWithImage(img);
     img = _padder->getImage();
   }
   if(_frameTex == 0) {
     regenerateTexture();
     configureTextureParameters();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0,
-                 GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
+    if(_useSubImagePadding) { // no NPOT support, but we do have subimage support
+      int width = _padder->getImage()->width;
+      int height = _padder->getImage()->height;
+      int x = (width - img->width)/2;
+      int y = (height - img->height)/2;
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT,
+                   GL_UNSIGNED_BYTE, _padder->getImage());
+      glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, img->width, img->height,
+                      GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
+    } else { // NPOT support, or GL 1.0 support only
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0,
+                   GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
+    }
     if((errorCode = glGetError()) != GL_NO_ERROR) {
       NHZ_ERR("%s (image)\n", (const char *)gluErrorString(errorCode));
     }
   } else {
     configureTextureParameters();
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img->width, img->height, GL_BGR_EXT,
-                    GL_UNSIGNED_BYTE, img->imageData);
+    if(_useSubImagePadding) {
+      int x = (_padder->getImage()->width - img->width)/2;
+      int y = (_padder->getImage()->height - img->height)/2;
+      glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, img->width, img->height,
+                      GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
+    } else {
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img->width, img->height,
+                      GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
+    }
     if((errorCode = glGetError()) != GL_NO_ERROR) {
       NHZ_ERR("%s (subimage)\n", (const char *)gluErrorString(errorCode));
     }
@@ -101,7 +132,6 @@ void Orientation::uploadTexture(IplImage* img) {
 void Orientation::performRotation() const
 {
 }
-
 
 void Orientation::render(void) const {
   char text[256] = {0};
