@@ -171,6 +171,8 @@ void Orientation::render(void) const {
     glScalef(_aspectRatio, 1.0f, 1.0f);
   }
 
+  glScalef(0.5f, 0.5f, 1.0f);
+
   configureTextureParameters();
 
   performRotation();
