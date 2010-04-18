@@ -36,7 +36,7 @@ class Orientation : public Renderable
   private:
     int _deviceID;
     bool _usingPadding, _useSubImagePadding;
-    float _aspectRatio;
+    float _aspectRatio, _paddingScaleFactor;
     PixelPadder* _padder;
     CvHaarClassifierCascade* _cascade;
     CvMemStorage* _storage;
