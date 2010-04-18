@@ -27,6 +27,9 @@ Orientation::~Orientation() {
   if(_frameTex != 0) {
     glDeleteTextures(1, &_frameTex);
   }
+  if(_detector != NULL) {
+    delete _detector;
+  }
 }
 
 void Orientation::initialize() {
@@ -48,7 +51,8 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
     glVersionFloat = atof((const char *)glGetString(GL_VERSION));
   }
 
-  _capture = 0; // please just don't touch this
+  _capture = NULL;
+  _padder = NULL;
   setDevice(deviceID);
   _frameTex = frameTexture;
 
@@ -183,7 +187,7 @@ void Orientation::idle(const int elapsed) {
 
   _aspectRatio = ((float)_img->width)/((float)_img->height);
 
-  if(_padder->getImage() != NULL) {
+  if(_padder != NULL && _padder->getImage() != NULL) {
     _paddingScaleFactor = sqrt(((float)(_padder->getImage()->width
                                         * _padder->getImage()->height))
                                / ((float)(_img->width * _img->height)));
