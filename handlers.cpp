@@ -33,6 +33,8 @@
 static GLsizei winWidth = 800, winHeight = 600;
 static int window_id_main = 0;
 
+static Orientation* orient = NULL;
+
 void display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glPushMatrix();
@@ -71,6 +73,7 @@ void win32_idle_handle_messages() {
 }
 
 LRESULT CALLBACK CallWndProc(int code, WPARAM wParam, LPARAM lParam) {
+  static short idle_limiter = 0;
   if(code < 0) {
     return CallNextHookEx(nextHook, code, wParam, lParam);
   }
@@ -80,14 +83,23 @@ LRESULT CALLBACK CallWndProc(int code, WPARAM wParam, LPARAM lParam) {
       switch(cwp->message) {
         case WM_MOVING:
         case WM_GETICON:
+          idle_limiter = 5;
         case WM_MOVE:
-          idle();
+          if(idle_limiter++ >= 5) {
+            idle_limiter = 0;
+            orient->pauseFaceDetection();
+            idle();
+            orient->resumeFaceDetection();
+          }
           RedrawWindow(cwp->hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
           break;
         case WM_CLOSE:
           glutLeaveMainLoop();
           glutMainLoopEvent();
           RenderQueue::getInstance()->clear();
+          if(orient != NULL) {
+            delete orient;
+          }
           // TODO: this is a bad solution, but it avoids our deadlock issues.
           // instead of using TerminateProcess, ExitProcess() might work. this
           // is akin to using a nuke to weed your garden... however, I am
@@ -229,8 +241,9 @@ void main_springload() {
   init_opengl();
   
   //put standard main code here
-  Orientation orient;
-  RenderQueue::getInstance()->enqueue(orient);
+  // note that orient is now a global
+  orient = new Orientation;
+  RenderQueue::getInstance()->enqueue(*orient);
 
   glutMainLoop();
 }

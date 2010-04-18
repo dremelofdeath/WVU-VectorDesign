@@ -23,6 +23,8 @@ class Orientation : public Renderable
     virtual void initialize(int deviceID);
     virtual void initialize(int deviceID, GLuint frameTexture);
     virtual void setDevice(int deviceID);
+    virtual void pauseFaceDetection();
+    virtual void resumeFaceDetection();
     virtual void uploadTexture(IplImage* img);
     virtual void render() const;
     virtual void idle(const int elapsed);
@@ -38,6 +40,7 @@ class Orientation : public Renderable
     int _deviceID;
     bool _usingPadding, _useSubImagePadding;
     float _aspectRatio, _paddingScaleFactor;
+    bool _useFaceDetection;
     PixelPadder* _padder;
     ObjectDetector* _detector;
     CvCapture* _capture;
