@@ -14,9 +14,9 @@ class Socket
     Socket() throw(NetworkException);
     Socket(string ip, string port) throw(NetworkException);
 
-    virtual void connect(string ip, string port);
-    virtual int send(char const * const data, int length) = 0;
-    virtual int receive(char const * data, int length) = 0;
+    virtual void connectSocket(string ip, string port);
+    virtual int sendData(char const * const data, int length) = 0;
+    virtual int receiveData(char * const data, int length) = 0;
     virtual void disconnect() = 0;
 
   protected:
