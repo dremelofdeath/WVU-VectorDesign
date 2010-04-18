@@ -93,6 +93,10 @@ void Orientation::uploadTexture(IplImage* img) {
     _padder->padWithImage(img);
     img = _padder->getImage();
   }
+  if(_useSubImagePadding && _padder->getImage() == NULL) {
+    _padder->copyPropertiesFromImage(img);
+    _padder->setDimensions(1024);
+  }
   if(_frameTex == 0) {
     regenerateTexture();
     configureTextureParameters();
@@ -102,7 +106,7 @@ void Orientation::uploadTexture(IplImage* img) {
       int x = (width - img->width)/2;
       int y = (height - img->height)/2;
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT,
-                   GL_UNSIGNED_BYTE, _padder->getImage());
+                   GL_UNSIGNED_BYTE, _padder->getImage()->imageData);
       glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, img->width, img->height,
                       GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
     } else { // NPOT support, or GL 1.0 support only

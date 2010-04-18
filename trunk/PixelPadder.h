@@ -15,6 +15,7 @@ class PixelPadder {
     bool getDrawingState();
     void padWithImage(IplImage* image);
     void setDimensions(int wh);
+    void copyPropertiesFromImage(IplImage* img);
     IplImage* getImage();
   protected:
     bool areImagePropertiesChanging(IplImage* newImage);
