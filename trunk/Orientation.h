@@ -10,6 +10,7 @@
 
 #include "Renderable.h"
 #include "PixelPadder.h"
+#include "ObjectDetector.h"
 
 class Orientation : public Renderable
 {
@@ -38,13 +39,11 @@ class Orientation : public Renderable
     bool _usingPadding, _useSubImagePadding;
     float _aspectRatio, _paddingScaleFactor;
     PixelPadder* _padder;
-    CvHaarClassifierCascade* _cascade;
-    CvMemStorage* _storage;
+    ObjectDetector* _detector;
     CvCapture* _capture;
 		GLuint _frameTex;
     CvFont _font, _smallfont;
     IplImage* _img;
-    IplImage* _scaledImg;
 
 	float angle;
 	float x;
