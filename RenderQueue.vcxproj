@@ -57,6 +57,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cv210d.lib;cxcore210d.lib;highgui210d.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY /D /V "$(SolutionDir)resources\*.xml" "$(OutDir)"
+XCOPY /D /V /I "$(SolutionDir)resources\*.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -76,6 +80,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>cv210d.lib;cxcore210d.lib;highgui210d.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY /D /V "$(SolutionDir)resources\*.xml" "$(OutDir)"
+XCOPY /D /V /I "$(SolutionDir)resources\*.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
