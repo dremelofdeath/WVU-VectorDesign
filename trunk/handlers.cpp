@@ -87,9 +87,11 @@ LRESULT CALLBACK CallWndProc(int code, WPARAM wParam, LPARAM lParam) {
         case WM_MOVE:
           if(idle_limiter++ >= 5) {
             idle_limiter = 0;
-            orient->pauseFaceDetection();
-            idle();
-            orient->resumeFaceDetection();
+            if(orient != NULL) {
+              orient->pauseFaceDetection();
+              idle();
+              orient->resumeFaceDetection();
+            }
           }
           RedrawWindow(cwp->hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
           break;
