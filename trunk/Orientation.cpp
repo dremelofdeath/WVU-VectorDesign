@@ -129,7 +129,14 @@ void Orientation::uploadTexture(IplImage* img) {
   }
 }
 
+//perform rotation based on stored variables
 void Orientation::performRotation() const
+{
+	glRotatef(10, 1, 0, 0);
+}
+
+//update rotation variables
+void Orientation::updateRotation()
 {
 }
 

@@ -25,6 +25,7 @@ class Orientation : public Renderable
     virtual void uploadTexture(IplImage* img);
     virtual void render() const;
     virtual void idle(const int elapsed);
+	virtual void updateRotation();
   protected:
     virtual void regenerateTexture();
     virtual void configureTextureParameters() const;
@@ -43,6 +44,11 @@ class Orientation : public Renderable
     CvFont _font, _smallfont;
     IplImage* _img;
     IplImage* _scaledImg;
+
+	float angle;
+	float x;
+	float y;
+	float z;
 };
 
 #endif
