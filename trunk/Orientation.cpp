@@ -189,8 +189,19 @@ void Orientation::idle(const int elapsed) {
                                / ((float)(_img->width * _img->height)));
   }
 
+  // adjust the search distance based on GPU capabilities
+  // (i.e., compensate for diminished speed on older machines by limiting depth)
+  if(_usingPadding) { // OpenGL 1.x
+    if(_useSubImagePadding) { // OpenGL 1.1+
+      _detector->setMinSize(cvSize(_img->width/12, _img->height/12));
+    } else { // OpenGL 1.0
+      _detector->setMinSize(cvSize(_img->width/8, _img->height/8));
+    }
+  } else { // OpenGL 2.0
+      _detector->setMinSize(cvSize(_img->width/16, _img->height/16));
+  }
+
   // detect faces
-  _detector->setMinSize(cvSize(_img->width/12, _img->height/12));
   CvSeq* faces = _detector->detect(_img);
 
   // draw face rects
