@@ -89,17 +89,21 @@ void Orientation::setDevice(int deviceID) {
 //taken from http://blog.damiles.com/?p=9
 void Orientation::uploadTexture(IplImage* img) {
   GLenum errorCode = GL_NO_ERROR;
+
   if(_usingPadding && !_useSubImagePadding) {
     _padder->padWithImage(img);
     img = _padder->getImage();
   }
+
   if(_useSubImagePadding && _padder->getImage() == NULL) {
     _padder->copyPropertiesFromImage(img);
     _padder->setDimensions(1024);
   }
+
   if(_frameTex == 0) {
     regenerateTexture();
     configureTextureParameters();
+
     if(_useSubImagePadding) { // no NPOT support, but we do have subimage support
       int width = _padder->getImage()->width;
       int height = _padder->getImage()->height;
@@ -113,6 +117,7 @@ void Orientation::uploadTexture(IplImage* img) {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0,
                    GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
     }
+
     if((errorCode = glGetError()) != GL_NO_ERROR) {
       NHZ_ERR("%s (image)\n", (const char *)gluErrorString(errorCode));
     }
@@ -127,6 +132,7 @@ void Orientation::uploadTexture(IplImage* img) {
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img->width, img->height,
                       GL_BGR_EXT, GL_UNSIGNED_BYTE, img->imageData);
     }
+
     if((errorCode = glGetError()) != GL_NO_ERROR) {
       NHZ_ERR("%s (subimage)\n", (const char *)gluErrorString(errorCode));
     }
@@ -145,17 +151,19 @@ void Orientation::updateRotation()
 }
 
 void Orientation::render(void) const {
+  static float quadWidth = 20.0f;
+  static float distanceOut = 1.0f;
+  static float quadHeight = 20.0f;
+
   char text[256] = {0};
   char text2[256] = {0};
   char text3[256] = {0};
   char text4[256] = {0};
 
-  float quadWidth = 10.0f;
-  float distanceOut = 30.0f;
-  float quadHeight = 10.0f;
-
   if(_usingPadding) {
     glScalef(2.0f, 2.0f, 1.0f);
+  } else {
+    quadWidth = 20.0f * _aspectRatio;
   }
 
   configureTextureParameters();
@@ -164,13 +172,13 @@ void Orientation::render(void) const {
   performRotation();
   glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(-quadWidth, -quadHeight, 0);
+	glVertex3f(-quadWidth, -quadHeight, distanceOut);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(-quadWidth, quadHeight, 0);
+	glVertex3f(-quadWidth, quadHeight, distanceOut);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(quadWidth, quadHeight, 0);
+	glVertex3f(quadWidth, quadHeight, distanceOut);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(quadWidth, -quadHeight, 0);
+	glVertex3f(quadWidth, -quadHeight, distanceOut);
   glEnd();
 }
 
@@ -180,6 +188,8 @@ void Orientation::idle(const int elapsed) {
   if(!_img) {
     NHZ_ERR("Could not query frame.\n");
   }
+
+  _aspectRatio = ((float)_img->width)/((float)_img->height);
 
   if(_scaledImg == 0) {
     _scaledImg = cvCreateImage(cvSize(_img->width/2, _img->height/2), 8, 3);
@@ -206,6 +216,9 @@ void Orientation::idle(const int elapsed) {
   }
 
   uploadTexture(_img);
+
+  cvReleaseImage(&_scaledImg);
+  _scaledImg = 0;
 }
 
 void Orientation::regenerateTexture() {
