@@ -10,6 +10,9 @@ class PixelPadder {
     ~PixelPadder();
     void initialize();
     void initialize(int wh);
+    void stopDrawing();
+    void resumeDrawing();
+    bool getDrawingState();
     void padWithImage(IplImage* image);
     void setDimensions(int wh);
     IplImage* getImage();
@@ -19,6 +22,7 @@ class PixelPadder {
     void drawImageCentered(IplImage* image);
   private:
     int _dimensions, _depth, _channels;
+    bool _isDrawing;
     IplImage* _padding;
 };
 
