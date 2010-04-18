@@ -84,6 +84,16 @@ LRESULT CALLBACK CallWndProc(int code, WPARAM wParam, LPARAM lParam) {
           idle();
           RedrawWindow(cwp->hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
           break;
+        case WM_CLOSE:
+          glutLeaveMainLoop();
+          glutMainLoopEvent();
+          RenderQueue::getInstance()->clear();
+          // TODO: this is a bad solution, but it avoids our deadlock issues.
+          // instead of using TerminateProcess, ExitProcess() might work. this
+          // is akin to using a nuke to weed your garden... however, I am
+          // content with this for now --zack
+          TerminateProcess(GetCurrentProcess(), 0);
+          break;
       }
       break;
   }
@@ -160,10 +170,10 @@ void create_callbacks() {
   glutPassiveMotionFunc(&handle_mouse_motion);
 }
 
-void exit_callback() {
+/*void exit_callback() {
   RenderQueue::getInstance()->clear();
-  glutDestroyWindow(window_id_main);
-}
+  //glutDestroyWindow(window_id_main);
+}*/
 
 int create_window(const char *title, int xpos, int ypos, int ww, int wh) {
   static const GLfloat light0_pos[4] = {-1.0f, 0.0f, 0.0f, 1.0f};
@@ -210,7 +220,7 @@ void main_springload() {
   const char *title = "True Perspective";
 #endif
   set_window_id(create_window(title, 40, 40, 800, 600));
-  atexit(&exit_callback);
+  //atexit(&exit_callback);
   create_callbacks();
 #ifdef WIN32
   nextHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc,
