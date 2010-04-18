@@ -76,6 +76,7 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
       _padder->stopDrawing();
     }
   }
+  _paddingScaleFactor = 1.0f;
 
 }
 
@@ -142,7 +143,7 @@ void Orientation::uploadTexture(IplImage* img) {
 //perform rotation based on stored variables
 void Orientation::performRotation() const
 {
-	glRotatef(10, 1, 0, 0);
+  glRotatef(10, 1, 0, 0);
 }
 
 //update rotation variables
@@ -161,7 +162,7 @@ void Orientation::render(void) const {
   char text4[256] = {0};
 
   if(_usingPadding) {
-    glScalef(2.0f, 2.0f, 1.0f);
+    glScalef(_paddingScaleFactor, _paddingScaleFactor, 1.0f);
   } else {
     quadWidth = 20.0f * _aspectRatio;
   }
@@ -171,14 +172,14 @@ void Orientation::render(void) const {
   glTranslatef(0, 0, -30);
   performRotation();
   glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(-quadWidth, -quadHeight, distanceOut);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(-quadWidth, quadHeight, distanceOut);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(quadWidth, quadHeight, distanceOut);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(quadWidth, -quadHeight, distanceOut);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(-quadWidth, -quadHeight, distanceOut);
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(-quadWidth, quadHeight, distanceOut);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(quadWidth, quadHeight, distanceOut);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(quadWidth, -quadHeight, distanceOut);
   glEnd();
 }
 
@@ -190,6 +191,12 @@ void Orientation::idle(const int elapsed) {
   }
 
   _aspectRatio = ((float)_img->width)/((float)_img->height);
+
+  if(_padder->getImage() != NULL) {
+    _paddingScaleFactor = sqrt(((float)(_padder->getImage()->width
+                                        * _padder->getImage()->height))
+                               / ((float)(_img->width * _img->height)));
+  }
 
   if(_scaledImg == 0) {
     _scaledImg = cvCreateImage(cvSize(_img->width/2, _img->height/2), 8, 3);
