@@ -7,6 +7,7 @@
 #include <GL/gl.h>
 
 #include "nhz_common.h"
+#include "ObjectDetector.h"
 #include "Orientation.h"
 
 Orientation::Orientation() {
@@ -26,9 +27,6 @@ Orientation::~Orientation() {
   if(_frameTex != 0) {
     glDeleteTextures(1, &_frameTex);
   }
-  if(_scaledImg != 0) {
-    cvReleaseImage(&_scaledImg);
-  }
 }
 
 void Orientation::initialize() {
@@ -44,8 +42,6 @@ void Orientation::initialize(int deviceID) {
 }
 
 void Orientation::initialize(int deviceID, GLuint frameTexture) {
-
-  static const char *facedatafile = "haarcascade_frontalface_alt.xml";
   static double glVersionFloat = 0.0;
 
   if(glVersionFloat == 0.0) {
@@ -54,18 +50,12 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
 
   _capture = 0; // please just don't touch this
   setDevice(deviceID);
-  _scaledImg = 0; // or this
   _frameTex = frameTexture;
 
   cvInitFont(&_font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
   cvInitFont(&_smallfont, CV_FONT_HERSHEY_DUPLEX, 0.75, 0.75, 0, 1);
 
-  _storage = cvCreateMemStorage(0);
-
-  _cascade = (CvHaarClassifierCascade*)cvLoad(facedatafile);
-  if(!_cascade) {
-    NHZ_ERR("DEATH: cascade failure!\n");
-  }
+  _detector = new ObjectDetector;
 
   _useSubImagePadding = false;
   _usingPadding = glVersionFloat < 2.0f;
@@ -185,6 +175,7 @@ void Orientation::render(void) const {
 
 void Orientation::idle(const int elapsed) {
   int iface;
+
   _img = cvQueryFrame(_capture);
   if(!_img) {
     NHZ_ERR("Could not query frame.\n");
@@ -198,20 +189,9 @@ void Orientation::idle(const int elapsed) {
                                / ((float)(_img->width * _img->height)));
   }
 
-  if(_scaledImg == 0) {
-    _scaledImg = cvCreateImage(cvSize(_img->width/2, _img->height/2), 8, 3);
-    if(!_scaledImg) {
-      NHZ_ERR("Couldn't create the scaled image.\n");
-    }
-  }
-
-  cvClearMemStorage(_storage);
-  cvPyrDown(_img, _scaledImg);
-
   // detect faces
-  CvSeq *faces = cvHaarDetectObjects(_scaledImg, _cascade, _storage, 1.2, 2,
-                                     CV_HAAR_DO_CANNY_PRUNING,
-                                     cvSize(_img->width/16, _img->height/16));
+  _detector->setMinSize(cvSize(_img->width/12, _img->height/12));
+  CvSeq* faces = _detector->detect(_img);
 
   // draw face rects
   for(iface = 0; iface < faces->total; iface++) {
@@ -224,8 +204,6 @@ void Orientation::idle(const int elapsed) {
 
   uploadTexture(_img);
 
-  cvReleaseImage(&_scaledImg);
-  _scaledImg = 0;
 }
 
 void Orientation::regenerateTexture() {

@@ -86,6 +86,7 @@
     <ClInclude Include="handlers.h" />
     <ClInclude Include="KeyboardManager.h" />
     <ClInclude Include="nhz_common.h" />
+    <ClInclude Include="ObjectDetector.h" />
     <ClInclude Include="Orientation.h" />
     <ClInclude Include="PixelPadder.h" />
     <ClInclude Include="Renderable.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="handlers.cpp" />
     <ClCompile Include="KeyboardManager.cpp" />
     <ClCompile Include="nhz_common.cpp" />
+    <ClCompile Include="ObjectDetector.cpp" />
     <ClCompile Include="Orientation.cpp" />
     <ClCompile Include="PixelPadder.cpp" />
     <ClCompile Include="Renderable.cpp" />
