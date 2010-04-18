@@ -146,7 +146,7 @@ void Orientation::uploadTexture(IplImage* img) {
 //perform rotation based on stored variables
 void Orientation::performRotation() const
 {
-  glRotatef(10, 1, 0, 0);
+  //glRotatef(10, 1, 0, 0);
 }
 
 //update rotation variables
@@ -155,9 +155,9 @@ void Orientation::updateRotation()
 }
 
 void Orientation::render(void) const {
-  static float quadWidth = 18.0f;
+  static float quadWidth = 19.331f;
   static float distanceOut = 1.0f;
-  static float quadHeight = 18.0f;
+  static float quadHeight = 19.331f;
 
   char text[256] = {0};
   char text2[256] = {0};
@@ -167,7 +167,7 @@ void Orientation::render(void) const {
   if(_usingPadding) {
     glScalef(_paddingScaleFactor, _paddingScaleFactor, 1.0f);
   } else {
-    quadWidth = 18.0f * _aspectRatio;
+    quadWidth = 19.331f * _aspectRatio;
   }
 
   configureTextureParameters();
