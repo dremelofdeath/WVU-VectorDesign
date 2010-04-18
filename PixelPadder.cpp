@@ -52,6 +52,11 @@ void PixelPadder::setDimensions(int wh) {
   createPaddingWithDimensions(wh, NULL);
 }
 
+void PixelPadder::copyPropertiesFromImage(IplImage* img) {
+    _depth = img->depth;
+    _channels = img->nChannels;
+}
+
 IplImage* PixelPadder::getImage() {
   return _padding;
 }
@@ -66,8 +71,7 @@ void PixelPadder::createPaddingWithDimensions(int wh, IplImage* img) {
   }
 
   if(img != NULL) {
-    _depth = img->depth;
-    _channels = img->nChannels;
+    copyPropertiesFromImage(img);
   }
 
   if(_depth != 0 && _channels != 0) {
