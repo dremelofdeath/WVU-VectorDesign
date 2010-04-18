@@ -81,9 +81,9 @@ LRESULT CALLBACK CallWndProc(int code, WPARAM wParam, LPARAM lParam) {
     case HC_ACTION:
       PCWPSTRUCT cwp = (PCWPSTRUCT)lParam;
       switch(cwp->message) {
-        case WM_MOVING:
         case WM_GETICON:
           idle_limiter = 5;
+        case WM_MOVING:
         case WM_MOVE:
           if(idle_limiter++ >= 5) {
             idle_limiter = 0;
