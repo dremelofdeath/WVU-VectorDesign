@@ -59,6 +59,7 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   cvInitFont(&_font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
   cvInitFont(&_smallfont, CV_FONT_HERSHEY_DUPLEX, 0.75, 0.75, 0, 1);
 
+  _useFaceDetection = true;
   _detector = new ObjectDetector;
 
   _useSubImagePadding = false;
@@ -79,6 +80,14 @@ void Orientation::setDevice(int deviceID) {
     _deviceID = deviceID;
     restartCapture();
   }
+}
+
+void Orientation::pauseFaceDetection() {
+  _useFaceDetection = false;
+}
+
+void Orientation::resumeFaceDetection() {
+  _useFaceDetection = true;
 }
 
 //taken from http://blog.damiles.com/?p=9
@@ -146,9 +155,9 @@ void Orientation::updateRotation()
 }
 
 void Orientation::render(void) const {
-  static float quadWidth = 20.0f;
+  static float quadWidth = 18.0f;
   static float distanceOut = 1.0f;
-  static float quadHeight = 20.0f;
+  static float quadHeight = 18.0f;
 
   char text[256] = {0};
   char text2[256] = {0};
@@ -158,7 +167,7 @@ void Orientation::render(void) const {
   if(_usingPadding) {
     glScalef(_paddingScaleFactor, _paddingScaleFactor, 1.0f);
   } else {
-    quadWidth = 20.0f * _aspectRatio;
+    quadWidth = 18.0f * _aspectRatio;
   }
 
   configureTextureParameters();
@@ -201,20 +210,22 @@ void Orientation::idle(const int elapsed) {
     } else { // OpenGL 1.0
       _detector->setMinSize(cvSize(_img->width/8, _img->height/8));
     }
-  } else { // OpenGL 2.0
+  } else { // OpenGL 2.0+
       _detector->setMinSize(cvSize(_img->width/16, _img->height/16));
   }
 
-  // detect faces
-  CvSeq* faces = _detector->detect(_img);
+  if(_useFaceDetection) {
+    // detect faces
+    CvSeq* faces = _detector->detect(_img);
 
-  // draw face rects
-  for(iface = 0; iface < faces->total; iface++) {
-    CvRect face_rect = *(CvRect*)cvGetSeqElem(faces, iface);
-    cvRectangle(_img, cvPoint(face_rect.x*2,face_rect.y*2),
-                cvPoint(2*(face_rect.x+face_rect.width),
-                        2*(face_rect.y+face_rect.height)),
-                CV_RGB(0, 255, 0), 3);
+    // draw face rects
+    for(iface = 0; iface < faces->total; iface++) {
+      CvRect face_rect = *(CvRect*)cvGetSeqElem(faces, iface);
+      cvRectangle(_img, cvPoint(face_rect.x*2,face_rect.y*2),
+          cvPoint(2*(face_rect.x+face_rect.width),
+            2*(face_rect.y+face_rect.height)),
+          CV_RGB(0, 255, 0), 3);
+    }
   }
 
   uploadTexture(_img);
