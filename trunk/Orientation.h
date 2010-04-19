@@ -28,14 +28,12 @@ class Orientation : public Renderable
     virtual void uploadTexture(IplImage* img);
     virtual void render() const;
     virtual void idle(const int elapsed);
-    virtual void updateRotation();
   protected:
     virtual void regenerateTexture();
     virtual void configureTextureParameters() const;
     virtual void restartCapture();
     virtual void releaseCapture();
-    virtual void performRotation() const;
-
+    virtual void performRotation(const float vector[3]) const;
   private:
     int _deviceID;
     bool _usingPadding, _useSubImagePadding;
@@ -47,11 +45,6 @@ class Orientation : public Renderable
 		GLuint _frameTex;
     CvFont _font, _smallfont;
     IplImage* _img;
-
-	float angle;
-	float x;
-	float y;
-	float z;
 };
 
 #endif
