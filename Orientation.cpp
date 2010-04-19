@@ -165,13 +165,11 @@ void Orientation::render(void) const {
   char text4[256] = {0};
 
   if(_usingPadding) {
-    glScalef(_paddingScaleFactor, _paddingScaleFactor, 1.0f);
+    glScalef(_paddingScaleFactor*0.58f, _paddingScaleFactor*0.58f, 1.0f);
   } else {
     //quadHeight = 19.331f / _aspectRatio;
-    glScalef(_aspectRatio, 1.0f, 1.0f);
+    glScalef(_aspectRatio*0.58f, 0.58f, 1.0f);
   }
-
-  glScalef(0.58f, 0.58f, 1.0f);
 
   configureTextureParameters();
 
