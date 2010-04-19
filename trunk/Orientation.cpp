@@ -171,7 +171,7 @@ void Orientation::render(void) const {
     glScalef(_aspectRatio, 1.0f, 1.0f);
   }
 
-  glScalef(0.5f, 0.5f, 1.0f);
+  glScalef(0.58f, 0.58f, 1.0f);
 
   configureTextureParameters();
 
@@ -243,6 +243,8 @@ void Orientation::configureTextureParameters() const {
   glBindTexture(GL_TEXTURE_2D, _frameTex); // bind the texture to its array
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 
