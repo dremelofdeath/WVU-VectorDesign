@@ -34,6 +34,7 @@ class Orientation : public Renderable
     virtual void restartCapture();
     virtual void releaseCapture();
     virtual void performRotation(const float vector[3]) const;
+    virtual void calculateFaceVector(IplImage* img, CvRect& face_rect);
   private:
     int _deviceID;
     bool _usingPadding, _useSubImagePadding;
@@ -45,6 +46,7 @@ class Orientation : public Renderable
 		GLuint _frameTex;
     CvFont _font, _smallfont;
     IplImage* _img;
+    float _faceVector[3];
 };
 
 #endif
