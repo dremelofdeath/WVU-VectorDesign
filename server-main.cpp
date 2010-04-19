@@ -1,4 +1,4 @@
-#include "server.h"
+#include "ServerSocket.h"
 
 int main(int argc, char *argv[])
 {	ServerSocket server;

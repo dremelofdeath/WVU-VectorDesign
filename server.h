@@ -1,3 +1,5 @@
+/*
+
 #ifndef __TP_SERVER_SOCKET__
 #define __TP_SERVER_SOCKET__
 
@@ -32,3 +34,5 @@ class ServerSocket
 };
 
 #endif
+
+*/
