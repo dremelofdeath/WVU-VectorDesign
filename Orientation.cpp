@@ -161,6 +161,8 @@ void Orientation::render(void) const {
     glScalef(_aspectRatio*0.58f, 0.58f, 1.0f);
   }
 
+  glScalef(1.5f, 1.5f, 1.0f);
+
   configureTextureParameters();
 
   performRotation(_faceVector);
@@ -258,12 +260,14 @@ void Orientation::releaseCapture() {
 
 void Orientation::performRotation(const float vec[3]) const {
   const bool is_x_zero = vec[0] > -0.00001f && vec[0] < 0.00001f;
-  const float theta_xz = is_x_zero ? 0.0f : DEG2RAD(-atan(vec[2]/vec[0]))-90.0f;
-  const float theta_xy = is_x_zero ? 0.0f : DEG2RAD(atan(vec[1]/vec[0]))-90.0f;
-  glTranslatef(0.0f, 0.0f, -1.0f);
-  glRotatef(theta_xz, 0.0f, 1.0f, 0.0f);
-  glRotatef(theta_xy, 1.0f, 0.0f, 0.0f);
-  glTranslatef(0.0f, 0.0f, 1.0f);
+  float theta_xz = 180.0f + DEG2RAD(-atan(vec[2]/vec[0]));
+  //float theta_xy = is_x_zero ? 0.0f : DEG2RAD(atan(vec[1]/vec[0]));
+  theta_xz += vec[0] >= 0.0f ? -90.0f : 90.0f;
+  glTranslatef(0.0f, 0.0f, -0.95f);
+  //if(!is_x_zero) glRotatef(theta_xz, 0.0f, 1.0f, 0.0f);
+  glRotatef(60.0f*vec[0], 0.0f, 1.0f, 0.0f);
+  glRotatef(-60.0f*vec[1], 1.0f, 0.0f, 0.0f);
+  glTranslatef(0.0f, 0.0f, 0.95f);
 }
 
 #ifdef TRUEPERSPECTIVE_ORIENTATION_DEG2RADDEFINED
@@ -278,7 +282,9 @@ void Orientation::calculateFaceVector(IplImage* img, CvRect& face_rect) {
   int y_mid_img = img->height/4;
   float rect_area = (float)(face_rect.width*face_rect.height);
   float img_area = ((float)(img->width*img->height))/4;
-  _faceVector[0] = ((float)(x_mid_rect-x_mid_img))/(float)x_mid_img*-10.0f;
-  _faceVector[1] = ((float)(y_mid_rect-y_mid_img))/(float)y_mid_img*-10.0f;
-  _faceVector[2] = -img_area/rect_area;
+  _faceVector[0] = (float)(x_mid_rect-x_mid_img)/(float)x_mid_img;
+  //_faceVector[0] = pow(_faceVector[0], 3.0f);
+  //_faceVector[0] *= -2.0f;
+  _faceVector[1] = (float)(y_mid_rect-y_mid_img)/(float)y_mid_img;
+  _faceVector[2] = sqrt(img_area/rect_area);
 }
