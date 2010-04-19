@@ -155,17 +155,13 @@ void Orientation::updateRotation()
 }
 
 void Orientation::render(void) const {
-  static float quadWidth = 19.331f;
-  static float distanceOut = -1.0f;
-  static float quadHeight = 19.331f;
-
   char text[256] = {0};
   char text2[256] = {0};
   char text3[256] = {0};
   char text4[256] = {0};
 
   if(_usingPadding) {
-    glScalef(_paddingScaleFactor*0.58f, _paddingScaleFactor*0.58f, 1.0f);
+    glScalef(_paddingScaleFactor*0.667f, _paddingScaleFactor*0.667f, 1.0f);
   } else {
     //quadHeight = 19.331f / _aspectRatio;
     glScalef(_aspectRatio*0.58f, 0.58f, 1.0f);
@@ -177,13 +173,13 @@ void Orientation::render(void) const {
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(-1.0f, -1.0f, distanceOut);
+  glVertex3f(-1.0f, -1.0f, -1.0f);
   glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(-1.0f, 1.0f, distanceOut);
+  glVertex3f(-1.0f, 1.0f, -1.0f);
   glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(1.0f, 1.0f, distanceOut);
+  glVertex3f(1.0f, 1.0f, -1.0f);
   glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(1.0f, -1.0f, distanceOut);
+  glVertex3f(1.0f, -1.0f, -1.0f);
   glEnd();
 }
 
