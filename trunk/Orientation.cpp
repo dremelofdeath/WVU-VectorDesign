@@ -46,6 +46,7 @@ void Orientation::initialize(int deviceID) {
 }
 
 void Orientation::initialize(int deviceID, GLuint frameTexture) {
+  static const float initialFaceVector[3] = {0.0f, 0.0f, -2.0f};
   static double glVersionFloat = 0.0;
 
   if(glVersionFloat == 0.0) {
@@ -74,6 +75,9 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   }
   _paddingScaleFactor = 1.0f;
 
+  _faceVector[0] = initialFaceVector[0];
+  _faceVector[1] = initialFaceVector[1];
+  _faceVector[2] = initialFaceVector[2];
 }
 
 void Orientation::setDevice(int deviceID) {
@@ -144,30 +148,11 @@ void Orientation::uploadTexture(IplImage* img) {
   }
 }
 
-#define FLOAT_PI 3.14159f
-#define DEG2RAD(theta) ((theta)*180.0f/FLOAT_PI)
-
-void Orientation::performRotation(const float vector[3]) const {
-  const float theta_xz = DEG2RAD(-atan(vector[2]/vector[0]));
-  const float theta_xy = DEG2RAD(atan(vector[1]/vector[0]));
-  glTranslatef(0.0f, 0.0f, -1.0f);
-  glRotatef(theta_xz, 0.0f, 1.0f, 0.0f);
-  glRotatef(theta_xy, 1.0f, 0.0f, 0.0f);
-  glTranslatef(0.0f, 0.0f, 1.0f);
-}
-
-#undef DEG2RAD
-#undef FLOAT_PI
-
 void Orientation::render(void) const {
-  static float vector[3] = {0.0f, 0.0f, -2.0f};
   char text[256] = {0};
   char text2[256] = {0};
   char text3[256] = {0};
   char text4[256] = {0};
-
-  vector[0] += 5.0f;
-  if(vector[0] > 100.0f) vector[0] = -100.0f;
 
   if(_usingPadding) {
     glScalef(_paddingScaleFactor*0.667f, _paddingScaleFactor*0.667f, 1.0f);
@@ -178,7 +163,7 @@ void Orientation::render(void) const {
 
   configureTextureParameters();
 
-  performRotation(vector);
+  performRotation(_faceVector);
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
@@ -228,9 +213,10 @@ void Orientation::idle(const int elapsed) {
     for(iface = 0; iface < faces->total; iface++) {
       CvRect face_rect = *(CvRect*)cvGetSeqElem(faces, iface);
       cvRectangle(_img, cvPoint(face_rect.x*2,face_rect.y*2),
-          cvPoint(2*(face_rect.x+face_rect.width),
-            2*(face_rect.y+face_rect.height)),
-          CV_RGB(0, 255, 0), 3);
+                  cvPoint(2*(face_rect.x+face_rect.width),
+                          2*(face_rect.y+face_rect.height)),
+                  CV_RGB(0, 255, 0), 3);
+      calculateFaceVector(_img, face_rect);
     }
   }
 
@@ -262,4 +248,37 @@ void Orientation::releaseCapture() {
   if(_capture != 0) {
     cvReleaseCapture(&_capture);
   }
+}
+
+#define FLOAT_PI 3.14159f
+#ifndef DEG2RAD
+#define TRUEPERSPECTIVE_ORIENTATION_DEG2RADDEFINED 1
+#define DEG2RAD(theta) ((theta)*180.0f/FLOAT_PI)
+#endif
+
+void Orientation::performRotation(const float vec[3]) const {
+  const bool is_x_zero = vec[0] > -0.00001f && vec[0] < 0.00001f;
+  const float theta_xz = is_x_zero ? 0.0f : DEG2RAD(-atan(vec[2]/vec[0]))-90.0f;
+  const float theta_xy = is_x_zero ? 0.0f : DEG2RAD(atan(vec[1]/vec[0]))-90.0f;
+  glTranslatef(0.0f, 0.0f, -1.0f);
+  glRotatef(theta_xz, 0.0f, 1.0f, 0.0f);
+  glRotatef(theta_xy, 1.0f, 0.0f, 0.0f);
+  glTranslatef(0.0f, 0.0f, 1.0f);
+}
+
+#ifdef TRUEPERSPECTIVE_ORIENTATION_DEG2RADDEFINED
+#undef DEG2RAD
+#endif
+#undef FLOAT_PI
+
+void Orientation::calculateFaceVector(IplImage* img, CvRect& face_rect) {
+  int x_mid_rect = face_rect.x+face_rect.width/2;
+  int y_mid_rect = face_rect.y+face_rect.height/2;
+  int x_mid_img = img->width/4;
+  int y_mid_img = img->height/4;
+  float rect_area = (float)(face_rect.width*face_rect.height);
+  float img_area = ((float)(img->width*img->height))/4;
+  _faceVector[0] = ((float)(x_mid_rect-x_mid_img))/(float)x_mid_img*-10.0f;
+  _faceVector[1] = ((float)(y_mid_rect-y_mid_img))/(float)y_mid_img*-10.0f;
+  _faceVector[2] = -img_area/rect_area;
 }
