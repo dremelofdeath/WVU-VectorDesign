@@ -209,6 +209,7 @@ int create_window(const char *title, int xpos, int ypos, int ww, int wh) {
   glDisable(GL_DEPTH_TEST); 
   glDisable(GL_LIGHTING); 
   glEnable(GL_TEXTURE_2D);
+  glEnable(GL_NORMALIZE);
   return ret;
 }
 

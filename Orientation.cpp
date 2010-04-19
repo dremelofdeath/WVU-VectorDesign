@@ -5,6 +5,7 @@
 
 #include <windows.h>
 #include <GL/gl.h>
+#include <GL/glext.h>
 
 #include "nhz_common.h"
 #include "ObjectDetector.h"
@@ -143,22 +144,30 @@ void Orientation::uploadTexture(IplImage* img) {
   }
 }
 
-//perform rotation based on stored variables
-void Orientation::performRotation() const
-{
-  //glRotatef(10, 1, 0, 0);
+#define FLOAT_PI 3.14159f
+#define DEG2RAD(theta) ((theta)*180.0f/FLOAT_PI)
+
+void Orientation::performRotation(const float vector[3]) const {
+  const float theta_xz = DEG2RAD(-atan(vector[2]/vector[0]));
+  const float theta_xy = DEG2RAD(atan(vector[1]/vector[0]));
+  glTranslatef(0.0f, 0.0f, -1.0f);
+  glRotatef(theta_xz, 0.0f, 1.0f, 0.0f);
+  glRotatef(theta_xy, 1.0f, 0.0f, 0.0f);
+  glTranslatef(0.0f, 0.0f, 1.0f);
 }
 
-//update rotation variables
-void Orientation::updateRotation()
-{
-}
+#undef DEG2RAD
+#undef FLOAT_PI
 
 void Orientation::render(void) const {
+  static float vector[3] = {0.0f, 0.0f, -2.0f};
   char text[256] = {0};
   char text2[256] = {0};
   char text3[256] = {0};
   char text4[256] = {0};
+
+  vector[0] += 5.0f;
+  if(vector[0] > 100.0f) vector[0] = -100.0f;
 
   if(_usingPadding) {
     glScalef(_paddingScaleFactor*0.667f, _paddingScaleFactor*0.667f, 1.0f);
@@ -169,7 +178,7 @@ void Orientation::render(void) const {
 
   configureTextureParameters();
 
-  performRotation();
+  performRotation(vector);
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
@@ -226,7 +235,6 @@ void Orientation::idle(const int elapsed) {
   }
 
   uploadTexture(_img);
-
 }
 
 void Orientation::regenerateTexture() {
@@ -237,8 +245,10 @@ void Orientation::configureTextureParameters() const {
   glBindTexture(GL_TEXTURE_2D, _frameTex); // bind the texture to its array
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  if(!_usingPadding) {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  }
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 
