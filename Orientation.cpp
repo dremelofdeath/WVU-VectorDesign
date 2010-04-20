@@ -245,17 +245,25 @@ void Orientation::idle(const int elapsed) {
 	
 	cvCalcBackProject( &hue, backproject, hist );
     cvAnd( backproject, mask, backproject, 0 );
-/*
-	//ok I'm just grabbing the 0th element, later let's get the one with the biggest area
-	track_window = *(CvRect*)cvGetSeqElem(faces, 0);
 
-	cvCamShift( backproject, 
+	
+	if (faces->total > 0) //don't want to do anything yet if there's no faces to choose from
+	{
+		//I'm just grabbing the 0th element, later let's get the one with the biggest area
+		track_window = *(CvRect*)cvGetSeqElem(faces, 0);
+
+		//ok now for the main attraction
+		cvCamShift( backproject, 
 		track_window,
 		//don't know what the hell all this is, don't think we need to touch it
 		cvTermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ),
 		//track_box is output, track_comp is the next piece of state information (see the next line)
 		&track_comp, &track_box );
-	*/
+
+        cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0 );
+
+	}
+	
 //	track_window = track_comp.rect;
 
 
