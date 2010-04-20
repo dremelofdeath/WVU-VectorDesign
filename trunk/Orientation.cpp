@@ -232,11 +232,16 @@ void Orientation::idle(const int elapsed) {
       calculateFaceVector(_img, face_rect);
     }
 
-	//this probably doesn't go here, in fact I think we only need to do it once
+	//this definitely doesn't go here, in fact I think we only need to do it once
+	//so I'll move it to initialize when I'm feeling less lazy
     hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
 	hue = cvCreateImage( cvGetSize(_img), 8, 1 );
     mask = cvCreateImage( cvGetSize(_img), 8, 1 );
     backproject = cvCreateImage( cvGetSize(_img), 8, 1 );
+    
+
+	//recalculate histogram (do this every time)
+	cvCalcHist( &hue, hist, 0, mask );
 
 
 	//camshift stuff
@@ -259,6 +264,9 @@ void Orientation::idle(const int elapsed) {
 		cvTermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ),
 		//track_box is output, track_comp is the next piece of state information (see the next line)
 		&track_comp, &track_box );
+
+        if( !_img->origin ) track_box.angle = -track_box.angle;
+
 
         cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0 );
 
