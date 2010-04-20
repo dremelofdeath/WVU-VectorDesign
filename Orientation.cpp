@@ -190,6 +190,25 @@ void Orientation::render(void) const {
   glEnd();
 }
 
+//straight up highway robbed out of camshiftdemo.c
+CvScalar hsv2rgb( float hue )
+{
+    int rgb[3], p, sector;
+    static const int sector_data[][3]=
+        {{0,2,1}, {1,2,0}, {1,0,2}, {2,0,1}, {2,1,0}, {0,1,2}};
+    hue *= 0.033333333333333333333333333333333f;
+    sector = cvFloor(hue);
+    p = cvRound(255*(hue - sector));
+    p ^= sector & 1 ? 255 : 0;
+
+    rgb[sector_data[sector][0]] = 255;
+    rgb[sector_data[sector][1]] = 0;
+    rgb[sector_data[sector][2]] = p;
+
+    return cvScalar(rgb[2], rgb[1], rgb[0],0);
+}
+
+
 void Orientation::idle(const int elapsed) {
   int iface;
 
@@ -234,14 +253,19 @@ void Orientation::idle(const int elapsed) {
 
 	//this definitely doesn't go here, in fact I think we only need to do it once
 	//so I'll move it to initialize when I'm feeling less lazy
-    hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
-	hue = cvCreateImage( cvGetSize(_img), 8, 1 );
+    image = cvCreateImage( cvGetSize(_img), 8, 3 );
+    image->origin = _img->origin;
+    hsv = cvCreateImage( cvGetSize(_img), 8, 3 );
+    hue = cvCreateImage( cvGetSize(_img), 8, 1 );
     mask = cvCreateImage( cvGetSize(_img), 8, 1 );
     backproject = cvCreateImage( cvGetSize(_img), 8, 1 );
+    hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
+    histimg = cvCreateImage( cvSize(320,200), 8, 3 );
+//    cvZero( histimg );
+	//end horrifying memory leak section
+
     
 
-	//recalculate histogram (do this every time)
-	cvCalcHist( &hue, hist, 0, mask );
 
 
 	//camshift stuff
@@ -256,6 +280,43 @@ void Orientation::idle(const int elapsed) {
 	{
 		//I'm just grabbing the 0th element, later let's get the one with the biggest area
 		track_window = *(CvRect*)cvGetSeqElem(faces, 0);
+
+
+		//here's a big chunk of somewhat modified camshiftdemo code we need to appropriate
+
+		int _vmin = 67, _vmax = 256, smin = 105; //these values are subject to change based on how much they suck
+
+	    cvInRangeS( hsv, cvScalar(0,smin,MIN(_vmin,_vmax),0),
+					cvScalar(180,256,MAX(_vmin,_vmax),0), mask );
+					cvSplit( hsv, hue, 0, 0, 0 );
+
+		float max_val = 0.f;
+		cvSetImageROI( hue, track_window );
+		cvSetImageROI( mask, track_window );
+	
+		cvCalcHist( &hue, hist, 0, mask );
+		cvGetMinMaxHistValue( hist, 0, &max_val, 0, 0 );
+		cvConvertScale( hist->bins, hist->bins, max_val ? 255. / max_val : 0., 0 );
+		cvResetImageROI( hue );
+		cvResetImageROI( mask );
+	//	track_window = selection; dont need this
+	//	track_object = 1; or this
+	
+	//probably don't need anything to do with histimg but honestly who knows
+	//cvZero( histimg );
+    //bin_w = histimg->width / hdims;
+		int i;
+		for( i = 0; i < hdims; i++ )
+		{
+			int val = cvRound( cvGetReal1D(hist->bins,i)*histimg->height/255 );
+			CvScalar color = hsv2rgb(i*180.f/hdims);
+	//		cvRectangle( histimg, cvPoint(i*bin_w,histimg->height),
+	//					cvPoint((i+1)*bin_w,histimg->height - val),
+	//					color, -1, 8, 0 );
+		}
+
+		//end big chunk of camshiftdemo code
+
 
 		//ok now for the main attraction
 		cvCamShift( backproject, 
