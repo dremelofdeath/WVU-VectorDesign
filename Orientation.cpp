@@ -234,14 +234,15 @@ void Orientation::idle(const int elapsed) {
 
 	//this probably doesn't go here, in fact I think we only need to do it once
     hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
-	/*
-    hue = cvCreateImage( cvGetSize(_capture), 8, 1 );
-    mask = cvCreateImage( cvGetSize(_capture), 8, 1 );
+
+	hue = cvCreateImage( cvGetSize(_img), 8, 1 );
+    mask = cvCreateImage( cvGetSize(_img), 8, 1 );
 
 
 	//camshift stuff
 	//calculate back projection (do this every time we call camshift)
-	
+
+	/*
 	cvCalcBackProject( &hue, backproject, hist );
     cvAnd( backproject, mask, backproject, 0 );
 
