@@ -11,8 +11,8 @@ using std::string;
 
 class Socket
 { public:
-    Socket() throw(NetworkException);
-    Socket(string const ip, string const port) throw(NetworkException);
+    Socket();
+    Socket(string const ip, string const port);
 
     virtual void connectTo(string const ip, string const port);
     virtual void connectSocket() = 0;
