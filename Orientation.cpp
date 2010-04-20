@@ -341,7 +341,7 @@ void Orientation::idle(const int elapsed) {
   }
   
   //using camshift
-  calculateFaceVector(_img, track_window);
+  calculateFaceVector(_img, track_comp.rect);
 
   uploadTexture(_img);
 }
