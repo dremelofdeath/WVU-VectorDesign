@@ -73,7 +73,6 @@ void win32_idle_handle_messages() {
 }
 
 LRESULT CALLBACK CallWndProc(int code, WPARAM wParam, LPARAM lParam) {
-  static short idle_limiter = 0;
   if(code < 0) {
     return CallNextHookEx(nextHook, code, wParam, lParam);
   }
@@ -81,20 +80,6 @@ LRESULT CALLBACK CallWndProc(int code, WPARAM wParam, LPARAM lParam) {
     case HC_ACTION:
       PCWPSTRUCT cwp = (PCWPSTRUCT)lParam;
       switch(cwp->message) {
-        case WM_GETICON:
-          idle_limiter = 5;
-        case WM_MOVING:
-        case WM_MOVE:
-          if(idle_limiter++ >= 5) {
-            idle_limiter = 0;
-            if(orient != NULL) {
-              orient->pauseFaceDetection();
-              idle();
-              orient->resumeFaceDetection();
-            }
-          }
-          RedrawWindow(cwp->hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
-          break;
         case WM_CLOSE:
           glutLeaveMainLoop();
           glutMainLoopEvent();

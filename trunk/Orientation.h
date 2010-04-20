@@ -36,16 +36,22 @@ class Orientation : public Renderable
     virtual void performRotation(const float vector[3]) const;
     virtual void calculateFaceVector(IplImage* img, CvRect& face_rect);
   private:
-    int _deviceID;
+    int _deviceID, _timeSpentTracking;
     bool _usingPadding, _useSubImagePadding;
     float _aspectRatio, _paddingScaleFactor;
-    bool _useFaceDetection;
+    bool _useFaceDetection, _trackingEnabled;
     PixelPadder* _padder;
     ObjectDetector* _detector;
+    CvRect _trackWindow;
+    CvHistogram* _hist;
     CvCapture* _capture;
 		GLuint _frameTex;
     CvFont _font, _smallfont;
     IplImage* _img;
+    IplImage* _backproject;
+    IplImage* _hsv;
+    IplImage* _hue;
+    IplImage* _mask;
     float _faceVector[3];
 };
 

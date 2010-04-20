@@ -12,15 +12,9 @@
 #include "Orientation.h"
 
 //look these are some static variables and they probably don't even belong here but they're here for now, so deal with it
-static IplImage *image = 0, *hsv = 0, *hue = 0, *mask = 0, *backproject = 0, *histimg = 0;
-static CvRect track_window;
-static CvBox2D track_box;
-static CvConnectedComp track_comp;
-static CvHistogram *hist = 0;
 static int hdims = 16;
 static float hranges_arr[] = {0,180};
 static float* hranges = hranges_arr;
-
 
 Orientation::Orientation() {
   initialize();
@@ -42,6 +36,21 @@ Orientation::~Orientation() {
   if(_detector != NULL) {
     delete _detector;
   }
+  if(_hsv) {
+    cvReleaseImage(&_hsv);
+  }
+  if(_hue) {
+    cvReleaseImage(&_hue);
+  }
+  if(_mask) {
+    cvReleaseImage(&_mask);
+  }
+  if(_backproject) {
+    cvReleaseImage(&_backproject);
+  }
+  if(_hist) {
+    cvReleaseHist(&_hist);
+  }
 }
 
 void Orientation::initialize() {
@@ -56,7 +65,7 @@ void Orientation::initialize(int deviceID) {
   initialize(deviceID, 0);
 }
 
-void Orientation::initialize(int deviceID, GLuint frameTexture) {	
+void Orientation::initialize(int deviceID, GLuint frameTexture) { 
   static const float initialFaceVector[3] = {0.0f, 0.0f, -2.0f};
   static double glVersionFloat = 0.0;
 
@@ -64,10 +73,14 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
     glVersionFloat = atof((const char *)glGetString(GL_VERSION));
   }
 
+  _timeSpentTracking = 0;
+
   _capture = NULL;
   _padder = NULL;
   setDevice(deviceID);
   _frameTex = frameTexture;
+
+  _trackingEnabled = false;
 
   cvInitFont(&_font, CV_FONT_HERSHEY_DUPLEX, 1.0, 1.0, 0, 1);
   cvInitFont(&_smallfont, CV_FONT_HERSHEY_DUPLEX, 0.75, 0.75, 0, 1);
@@ -90,6 +103,11 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   _faceVector[1] = initialFaceVector[1];
   _faceVector[2] = initialFaceVector[2];
 
+  _backproject = NULL;
+  _hsv = NULL;
+  _hue = NULL;
+  _mask = NULL;
+  _hist = NULL;
 }
 
 void Orientation::setDevice(int deviceID) {
@@ -180,26 +198,25 @@ void Orientation::render(void) const {
   performRotation(_faceVector);
 
   glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(-1.0f, -1.0f, -1.0f);
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(-1.0f, 1.0f, -1.0f);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(1.0f, 1.0f, -1.0f);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(1.0f, -1.0f, -1.0f);
   glEnd();
 }
 
 //straight up highway robbed out of camshiftdemo.c
-CvScalar hsv2rgb( float hue )
-{
+CvScalar _hsv2rgb( float _hue ) {
     int rgb[3], p, sector;
     static const int sector_data[][3]=
         {{0,2,1}, {1,2,0}, {1,0,2}, {2,0,1}, {2,1,0}, {0,1,2}};
-    hue *= 0.033333333333333333333333333333333f;
-    sector = cvFloor(hue);
-    p = cvRound(255*(hue - sector));
+    _hue *= 0.033333333333333333333333333333333f;
+    sector = cvFloor(_hue);
+    p = cvRound(255*(_hue - sector));
     p ^= sector & 1 ? 255 : 0;
 
     rgb[sector_data[sector][0]] = 255;
@@ -238,8 +255,14 @@ void Orientation::idle(const int elapsed) {
       _detector->setMinSize(cvSize(_img->width/16, _img->height/16));
   }
 
-  //pull face detection from the haar classifier - we only want to do this once in awhile
+  if(_timeSpentTracking > 5000) {
+    resumeFaceDetection();
+  }
+
+  // pull face detection from the haar classifier
+  // we only want to do this once in awhile
   if(_useFaceDetection) {
+    int vmin = 67, vmax = 256, smin = 105;
     // detect faces
     CvSeq* faces = _detector->detect(_img);
 
@@ -250,98 +273,89 @@ void Orientation::idle(const int elapsed) {
                   cvPoint(2*(face_rect.x+face_rect.width),
                           2*(face_rect.y+face_rect.height)),
                   CV_RGB(0, 255, 0), 3);
-//      calculateFaceVector(_img, face_rect); let's try to use camshift instead.
+
+      // I'm just grabbing the 0th element
+      // later let's get the one with the biggest area
+      _trackWindow.x = face_rect.x;
+      _trackWindow.y = face_rect.y;
+      _trackWindow.width = face_rect.width;
+      _trackWindow.height = face_rect.height;
+
+      // let's try to use camshift instead.
+      //calculateFaceVector(_img, face_rect);
     }
 
-	//camshift stuff
+    // camshift initializations
+    if(!_hsv) {
+      _hsv = cvCreateImage(cvGetSize(_img), 8, 3);
+    }
+    if(!_hue) {
+      _hue = cvCreateImage(cvGetSize(_img), 8, 1);
+    }
+    if(!_mask) {
+      _mask = cvCreateImage(cvGetSize(_img), 8, 1);
+    }
+    if(!_backproject) {
+      _backproject = cvCreateImage(cvGetSize(_img), 8, 1);
+    }
+    if(!_hist) {
+      _hist = cvCreateHist(1, &hdims, CV_HIST_ARRAY, &hranges, 1);
+    }
 
-  //camshift initializations
-  if (!image)
-  {
-	  image = cvCreateImage( cvGetSize(_img), 8, 3 );
-	  image->origin = _img->origin;
-	  hsv = cvCreateImage( cvGetSize(_img), 8, 3 );
-	  hue = cvCreateImage( cvGetSize(_img), 8, 1 );
-	  mask = cvCreateImage( cvGetSize(_img), 8, 1 );
-	  backproject = cvCreateImage( cvGetSize(_img), 8, 1 );
-	  hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
-	  histimg = cvCreateImage( cvSize(320,200), 8, 3 );
-	  //  cvZero( histimg );
+    cvInRangeS(_hsv, cvScalar(0, smin , MIN(vmin, vmax), 0),
+               cvScalar(180, 256, MAX(vmin, vmax), 0), _mask);
+    cvSplit(_hsv, _hue, 0, 0, 0);
+
+    // don't want to do anything yet if there's no faces to choose from
+    if ((!_trackingEnabled || _timeSpentTracking > 5000) && faces->total > 0) {
+      CvRect* face_found;
+      float max_val = 0.0f;
+
+      _timeSpentTracking = 0;
+      _trackingEnabled = true;
+
+      cvSetImageROI(_hue, _trackWindow);
+      cvSetImageROI(_mask, _trackWindow);
+
+      cvCalcHist(&_hue, _hist, 0, _mask);
+      cvGetMinMaxHistValue(_hist, 0, &max_val, 0, 0);
+      cvConvertScale(_hist->bins, _hist->bins,
+                     max_val ? 255.0 / max_val : 0.0, 0);
+
+      cvResetImageROI(_hue);
+      cvResetImageROI(_mask);
+    }
   }
 
+  if(_trackingEnabled) {
+    CvBox2D track_box;
+    CvConnectedComp track_comp;
 
-	//calculate back projection (do this every time we call camshift)
+    //calculate back projection (do this every time we call camshift)
+    cvCalcBackProject(&_hue, _backproject, _hist);
+    cvAnd(_backproject, _mask, _backproject, 0);
 
-	
-	cvCalcBackProject( &hue, backproject, hist );
-    cvAnd( backproject, mask, backproject, 0 );
+    // ok now for the main attraction
+    cvCamShift(_backproject, _trackWindow,
+               cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1),
+               &track_comp, &track_box );
 
-	
-	if (faces->total > 0) //don't want to do anything yet if there's no faces to choose from
-	{
-		//I'm just grabbing the 0th element, later let's get the one with the biggest area
-		track_window = *(CvRect*)cvGetSeqElem(faces, 0);
+    // track_box is output, track_comp is the next piece of state information
+    _trackWindow.x = track_comp.rect.x;
+    _trackWindow.y = track_comp.rect.y;
+    _trackWindow.width = track_comp.rect.width;
+    _trackWindow.height = track_comp.rect.height;
 
+    if( !_img->origin ) track_box.angle = -track_box.angle;
 
-		//here's a big chunk of somewhat modified camshiftdemo code we need to appropriate
+    //cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
 
-		int _vmin = 67, _vmax = 256, smin = 105; //these values are subject to change based on how much they suck
+    calculateFaceVector(_img, _trackWindow);
 
-	    cvInRangeS( hsv, cvScalar(0,smin,MIN(_vmin,_vmax),0),
-					cvScalar(180,256,MAX(_vmin,_vmax),0), mask );
-					cvSplit( hsv, hue, 0, 0, 0 );
+    _timeSpentTracking += elapsed;
 
-		float max_val = 0.f;
-		cvSetImageROI( hue, track_window );
-		cvSetImageROI( mask, track_window );
-	
-		cvCalcHist( &hue, hist, 0, mask );
-		cvGetMinMaxHistValue( hist, 0, &max_val, 0, 0 );
-		cvConvertScale( hist->bins, hist->bins, max_val ? 255. / max_val : 0., 0 );
-		cvResetImageROI( hue );
-		cvResetImageROI( mask );
-	//	track_window = selection; dont need this
-	//	track_object = 1; or this
-	
-	//probably don't need anything to do with histimg but honestly who knows
-	//cvZero( histimg );
-    //bin_w = histimg->width / hdims;
-		int i;
-		for( i = 0; i < hdims; i++ )
-		{
-			int val = cvRound( cvGetReal1D(hist->bins,i)*histimg->height/255 );
-			CvScalar color = hsv2rgb(i*180.f/hdims);
-	//		cvRectangle( histimg, cvPoint(i*bin_w,histimg->height),
-	//					cvPoint((i+1)*bin_w,histimg->height - val),
-	//					color, -1, 8, 0 );
-		}
-
-		//end big chunk of camshiftdemo code
-
-
-		//ok now for the main attraction
-		cvCamShift( backproject, 
-		track_window,
-		//don't know what the hell all this is, don't think we need to touch it
-		cvTermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ),
-		//track_box is output, track_comp is the next piece of state information (see the next line)
-		&track_comp, &track_box );
-
-		track_window = track_comp.rect;
-
-        if( !_img->origin ) track_box.angle = -track_box.angle;
-
-
-        cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0 );
-
-	}
-	
-
-
+    pauseFaceDetection();
   }
-  
-  //using camshift
-  calculateFaceVector(_img, track_comp.rect);
 
   uploadTexture(_img);
 }
