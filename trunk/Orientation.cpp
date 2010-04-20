@@ -56,7 +56,7 @@ void Orientation::initialize(int deviceID) {
   initialize(deviceID, 0);
 }
 
-void Orientation::initialize(int deviceID, GLuint frameTexture) {
+void Orientation::initialize(int deviceID, GLuint frameTexture) {	
   static const float initialFaceVector[3] = {0.0f, 0.0f, -2.0f};
   static double glVersionFloat = 0.0;
 
@@ -89,6 +89,7 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   _faceVector[0] = initialFaceVector[0];
   _faceVector[1] = initialFaceVector[1];
   _faceVector[2] = initialFaceVector[2];
+
 }
 
 void Orientation::setDevice(int deviceID) {
@@ -251,24 +252,27 @@ void Orientation::idle(const int elapsed) {
       calculateFaceVector(_img, face_rect);
     }
 
-	//this definitely doesn't go here, in fact I think we only need to do it once
-	//so I'll move it to initialize when I'm feeling less lazy
-    image = cvCreateImage( cvGetSize(_img), 8, 3 );
-    image->origin = _img->origin;
-    hsv = cvCreateImage( cvGetSize(_img), 8, 3 );
-    hue = cvCreateImage( cvGetSize(_img), 8, 1 );
-    mask = cvCreateImage( cvGetSize(_img), 8, 1 );
-    backproject = cvCreateImage( cvGetSize(_img), 8, 1 );
-    hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
-    histimg = cvCreateImage( cvSize(320,200), 8, 3 );
-//    cvZero( histimg );
-	//end horrifying memory leak section
-
     
 
 
 
 	//camshift stuff
+
+  //camshift initializations
+  if (!image)
+  {
+	  image = cvCreateImage( cvGetSize(_img), 8, 3 );
+	  image->origin = _img->origin;
+	  hsv = cvCreateImage( cvGetSize(_img), 8, 3 );
+	  hue = cvCreateImage( cvGetSize(_img), 8, 1 );
+	  mask = cvCreateImage( cvGetSize(_img), 8, 1 );
+	  backproject = cvCreateImage( cvGetSize(_img), 8, 1 );
+	  hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
+	  histimg = cvCreateImage( cvSize(320,200), 8, 3 );
+	  //  cvZero( histimg );
+  }
+
+
 	//calculate back projection (do this every time we call camshift)
 
 	
@@ -326,6 +330,8 @@ void Orientation::idle(const int elapsed) {
 		//track_box is output, track_comp is the next piece of state information (see the next line)
 		&track_comp, &track_box );
 
+		track_window = track_comp.rect;
+
         if( !_img->origin ) track_box.angle = -track_box.angle;
 
 
@@ -333,7 +339,6 @@ void Orientation::idle(const int elapsed) {
 
 	}
 	
-	track_window = track_comp.rect;
 
 
   }
