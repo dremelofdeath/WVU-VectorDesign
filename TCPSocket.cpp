@@ -50,6 +50,8 @@ int TCPSocket::sendData(char const * const data, int length)
   { string str = "Send failed: " + WSAGetLastError();
     throw NetworkException(str);
   }
+
+  return bytes;
 }
 
 int TCPSocket::receiveData(char * const data, int length)
@@ -59,6 +61,8 @@ int TCPSocket::receiveData(char * const data, int length)
   { string str = "Receive failed: " + WSAGetLastError();
     throw NetworkException(str);
   }
+
+  return bytes;
 }
 
 void TCPSocket::disconnect()
