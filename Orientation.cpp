@@ -11,6 +11,17 @@
 #include "ObjectDetector.h"
 #include "Orientation.h"
 
+//look these are some static variables and they probably don't even belong here but they're here for now, so deal with it
+static IplImage *image = 0, *hsv = 0, *hue = 0, *mask = 0, *backproject = 0, *histimg = 0;
+static CvRect track_window;
+static CvBox2D track_box;
+static CvConnectedComp track_comp;
+static CvHistogram *hist = 0;
+static int hdims = 16;
+static float hranges_arr[] = {0,180};
+static float* hranges = hranges_arr;
+
+
 Orientation::Orientation() {
   initialize();
 }
@@ -168,14 +179,14 @@ void Orientation::render(void) const {
   performRotation(_faceVector);
 
   glBegin(GL_QUADS);
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(-1.0f, -1.0f, -1.0f);
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(-1.0f, 1.0f, -1.0f);
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(1.0f, 1.0f, -1.0f);
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(1.0f, -1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(-1.0f, 1.0f, -1.0f);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(1.0f, 1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f);
   glEnd();
 }
 
@@ -220,6 +231,33 @@ void Orientation::idle(const int elapsed) {
                   CV_RGB(0, 255, 0), 3);
       calculateFaceVector(_img, face_rect);
     }
+
+	//this probably doesn't go here, in fact I think we only need to do it once
+    hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
+	/*
+    hue = cvCreateImage( cvGetSize(_capture), 8, 1 );
+    mask = cvCreateImage( cvGetSize(_capture), 8, 1 );
+
+
+	//camshift stuff
+	//calculate back projection (do this every time we call camshift)
+	
+	cvCalcBackProject( &hue, backproject, hist );
+    cvAnd( backproject, mask, backproject, 0 );
+
+	//ok I'm just grabbing the 0th element, later let's get the one with the biggest area
+	track_window = *(CvRect*)cvGetSeqElem(faces, 0);
+
+	cvCamShift( backproject, 
+		track_window,
+		//don't know what the hell all this is, don't think we need to touch it
+		cvTermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ),
+		//track_box is output, track_comp is the next piece of state information (see the next line)
+		&track_comp, &track_box );
+	*/
+//	track_window = track_comp.rect;
+
+
   }
 
   uploadTexture(_img);
