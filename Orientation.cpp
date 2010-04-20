@@ -264,7 +264,7 @@ void Orientation::idle(const int elapsed) {
 
 	}
 	
-//	track_window = track_comp.rect;
+	track_window = track_comp.rect;
 
 
   }
