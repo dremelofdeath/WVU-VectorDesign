@@ -238,6 +238,7 @@ void Orientation::idle(const int elapsed) {
       _detector->setMinSize(cvSize(_img->width/16, _img->height/16));
   }
 
+  //pull face detection from the haar classifier - we only want to do this once in awhile
   if(_useFaceDetection) {
     // detect faces
     CvSeq* faces = _detector->detect(_img);
@@ -249,12 +250,8 @@ void Orientation::idle(const int elapsed) {
                   cvPoint(2*(face_rect.x+face_rect.width),
                           2*(face_rect.y+face_rect.height)),
                   CV_RGB(0, 255, 0), 3);
-      calculateFaceVector(_img, face_rect);
+//      calculateFaceVector(_img, face_rect); let's try to use camshift instead.
     }
-
-    
-
-
 
 	//camshift stuff
 
@@ -342,6 +339,9 @@ void Orientation::idle(const int elapsed) {
 
 
   }
+  
+  //using camshift
+  calculateFaceVector(_img, track_window);
 
   uploadTexture(_img);
 }
