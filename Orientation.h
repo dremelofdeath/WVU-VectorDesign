@@ -52,6 +52,7 @@ class Orientation : public Renderable
     IplImage* _hsv;
     IplImage* _hue;
     IplImage* _mask;
+    IplImage* _hsvImage;
     float _faceVector[3];
 };
 
