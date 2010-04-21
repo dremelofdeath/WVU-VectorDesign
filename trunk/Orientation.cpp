@@ -48,6 +48,9 @@ Orientation::~Orientation() {
   if(_backproject) {
     cvReleaseImage(&_backproject);
   }
+  if(_hsvImage) {
+    cvReleaseImage(&_hsvImage);
+  }
   if(_hist) {
     cvReleaseHist(&_hist);
   }
@@ -107,6 +110,7 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   _hsv = NULL;
   _hue = NULL;
   _mask = NULL;
+  _hsvImage = NULL;
   _hist = NULL;
 }
 
@@ -274,12 +278,12 @@ void Orientation::idle(const int elapsed) {
                           2*(face_rect.y+face_rect.height)),
                   CV_RGB(0, 255, 0), 3);
 
-      // I'm just grabbing the 0th element
+      // I'm just grabbing the last element
       // later let's get the one with the biggest area
-      _trackWindow.x = face_rect.x;
-      _trackWindow.y = face_rect.y;
-      _trackWindow.width = face_rect.width;
-      _trackWindow.height = face_rect.height;
+      _trackWindow.x = face_rect.x * 2;
+      _trackWindow.y = face_rect.y * 2;
+      _trackWindow.width = face_rect.width * 2;
+      _trackWindow.height = face_rect.height * 2;
 
       // let's try to use camshift instead.
       //calculateFaceVector(_img, face_rect);
@@ -298,17 +302,23 @@ void Orientation::idle(const int elapsed) {
     if(!_backproject) {
       _backproject = cvCreateImage(cvGetSize(_img), 8, 1);
     }
+    if(!_hsvImage) {
+      _hsvImage = cvCreateImage(cvGetSize(_img), 8, 3);
+      _hsvImage->origin = _img->origin;
+    }
     if(!_hist) {
       _hist = cvCreateHist(1, &hdims, CV_HIST_ARRAY, &hranges, 1);
     }
 
-    cvInRangeS(_hsv, cvScalar(0, smin , MIN(vmin, vmax), 0),
+    cvCopy(_img, _hsvImage, 0);
+    cvCvtColor(_hsvImage, _hsv, CV_BGR2HSV);
+
+    cvInRangeS(_hsv, cvScalar(0, smin, MIN(vmin, vmax), 0),
                cvScalar(180, 256, MAX(vmin, vmax), 0), _mask);
     cvSplit(_hsv, _hue, 0, 0, 0);
 
     // don't want to do anything yet if there's no faces to choose from
     if ((!_trackingEnabled || _timeSpentTracking > 5000) && faces->total > 0) {
-      CvRect* face_found;
       float max_val = 0.0f;
 
       _timeSpentTracking = 0;
@@ -343,10 +353,10 @@ void Orientation::idle(const int elapsed) {
     // track_box is output, track_comp is the next piece of state information
     _trackWindow.x = track_comp.rect.x;
     _trackWindow.y = track_comp.rect.y;
-    _trackWindow.width = (track_comp.rect.width)*2; //scale these down because of the pyrdown in objectdetector
-    _trackWindow.height = (track_comp.rect.height)*2; //and again, holmes
+    _trackWindow.width = track_comp.rect.width;
+    _trackWindow.height = track_comp.rect.height;
 
-    if( !_img->origin ) track_box.angle = -track_box.angle;
+    if( !_hsvImage->origin ) track_box.angle = -track_box.angle;
 
     cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
 
