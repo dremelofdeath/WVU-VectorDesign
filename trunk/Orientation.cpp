@@ -358,18 +358,17 @@ void Orientation::idle(const int elapsed) {
 
     if( !_hsvImage->origin ) track_box.angle = -track_box.angle;
 
+    // FIXME: this is debug code that shows the backprojection
+    cvCvtColor(_backproject, _img, CV_GRAY2BGR);
+
     cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
 
     calculateFaceVector(_img, _trackWindow);
 
-	//I think we need to reset these or else the code vomits profusely 
-	//because it's getting the wrong values for track_comp_rect
-    _trackWindow.width = track_comp.rect.width;
-    _trackWindow.height = track_comp.rect.height;
-
     _timeSpentTracking += elapsed;
 
     pauseFaceDetection();
+
   }
 
   uploadTexture(_img);
