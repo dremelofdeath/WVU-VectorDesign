@@ -8,6 +8,7 @@
 #include <GL/glext.h>
 
 #include "nhz_common.h"
+#include "KeyboardManager.h"
 #include "ObjectDetector.h"
 #include "Orientation.h"
 
@@ -328,12 +329,6 @@ void Orientation::idle(const int elapsed) {
     _trackWindow.y = track_comp.rect.y;
     _trackWindow.width = track_comp.rect.width;
     _trackWindow.height = track_comp.rect.height;
-	// current thinking is should not be using track_comp.rect
-	// instead, somehow get data out of track_box... which has angle, center, and size
-	printf("angle: %f, center: %f, size: %f\n", track_box.angle, track_box.center, track_box.size);
-
-	//Debug code. This makes backprojection visible.
-	//cvCvtColor( _backproject, _img, CV_GRAY2BGR );
 
     if( !_img->origin ) track_box.angle = -track_box.angle;
 
@@ -345,6 +340,12 @@ void Orientation::idle(const int elapsed) {
 
     pauseFaceDetection();
 
+  }
+
+  //Debug code. This makes backprojection visible.
+  if(KeyboardManager::getInstance().isKeyDown('b')
+     && KeyboardManager::getInstance().isKeyDown('p')) {
+    cvCvtColor(_backproject, _img, CV_GRAY2BGR);
   }
 
   uploadTexture(_img);
