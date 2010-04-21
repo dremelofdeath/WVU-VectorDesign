@@ -34,8 +34,9 @@ class Orientation : public Renderable
     virtual void restartCapture();
     virtual void releaseCapture();
     virtual void performRotation(const float vector[3]) const;
-    virtual void calculateFaceVector(IplImage* img, CvBox2D& face_box);
-    virtual void calculateFaceVector(IplImage* img, CvRect& face_rect);
+    void calculateFaceVector(IplImage* img, CvBox2D& face_box);
+    void calculateFaceVector(IplImage* img, CvRect& face_rect);
+    void calculateFaceVector(IplImage* img, float fx, float fy, float fsize);
   private:
     int _deviceID, _timeSpentTracking;
     bool _usingPadding, _useSubImagePadding;

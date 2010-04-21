@@ -401,18 +401,24 @@ void Orientation::performRotation(const float vec[3]) const {
 #undef FLOAT_PI
 
 void Orientation::calculateFaceVector(IplImage* img, CvBox2D& face_box) {
+  float fsize = face_box.size.width * face_box.size.height;
+  calculateFaceVector(img, (float)face_box.center.x,
+                      (float)face_box.center.y, fsize);
 }
 
 void Orientation::calculateFaceVector(IplImage* img, CvRect& face_rect) {
   int x_mid_rect = face_rect.x+face_rect.width/2;
   int y_mid_rect = face_rect.y+face_rect.height/2;
-  int x_mid_img = img->width/4;
-  int y_mid_img = img->height/4;
   float rect_area = (float)(face_rect.width*face_rect.height);
-  float img_area = ((float)(img->width*img->height))/4;
-  _faceVector[0] = (float)(x_mid_rect-x_mid_img)/(float)x_mid_img;
-  //_faceVector[0] = pow(_faceVector[0], 3.0f);
-  //_faceVector[0] *= -2.0f;
-  _faceVector[1] = (float)(y_mid_rect-y_mid_img)/(float)y_mid_img;
-  _faceVector[2] = sqrt(img_area/rect_area);
+  calculateFaceVector(img, (float)x_mid_rect, (float)y_mid_rect, rect_area);
+}
+
+void Orientation::calculateFaceVector(IplImage* img, float fx,
+                                      float fy, float fsize) {
+  float x_mid_img = (float)img->width/2;
+  float y_mid_img = (float)img->height/2;
+  float img_area = img->width*img->height;
+  _faceVector[0] = (fx-x_mid_img)/x_mid_img;
+  _faceVector[1] = (fy-y_mid_img)/y_mid_img;
+  _faceVector[2] = sqrt(img_area/fsize);
 }
