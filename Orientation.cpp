@@ -232,6 +232,7 @@ CvScalar _hsv2rgb( float _hue ) {
 
 
 void Orientation::idle(const int elapsed) {
+  static const int vmin = 67, vmax = 256, smin = 105;
   int iface;
 
   _img = cvQueryFrame(_capture);
@@ -263,10 +264,37 @@ void Orientation::idle(const int elapsed) {
     resumeFaceDetection();
   }
 
+  // camshift initializations
+  if(!_hsv) {
+    _hsv = cvCreateImage(cvGetSize(_img), 8, 3);
+  }
+  if(!_hue) {
+    _hue = cvCreateImage(cvGetSize(_img), 8, 1);
+  }
+  if(!_mask) {
+    _mask = cvCreateImage(cvGetSize(_img), 8, 1);
+  }
+  if(!_backproject) {
+    _backproject = cvCreateImage(cvGetSize(_img), 8, 1);
+  }
+  if(!_hsvImage) {
+    _hsvImage = cvCreateImage(cvGetSize(_img), 8, 3);
+    _hsvImage->origin = _img->origin;
+  }
+  if(!_hist) {
+    _hist = cvCreateHist(1, &hdims, CV_HIST_ARRAY, &hranges, 1);
+  }
+
+  cvCopy(_img, _hsvImage, 0);
+  cvCvtColor(_hsvImage, _hsv, CV_BGR2HSV);
+
+  cvInRangeS(_hsv, cvScalar(0, smin, MIN(vmin, vmax), 0),
+             cvScalar(180, 256, MAX(vmin, vmax), 0), _mask);
+  cvSplit(_hsv, _hue, 0, 0, 0);
+
   // pull face detection from the haar classifier
   // we only want to do this once in awhile
   if(_useFaceDetection) {
-    int vmin = 67, vmax = 256, smin = 105;
     // detect faces
     CvSeq* faces = _detector->detect(_img);
 
@@ -288,34 +316,6 @@ void Orientation::idle(const int elapsed) {
       // let's try to use camshift instead.
       //calculateFaceVector(_img, face_rect);
     }
-
-    // camshift initializations
-    if(!_hsv) {
-      _hsv = cvCreateImage(cvGetSize(_img), 8, 3);
-    }
-    if(!_hue) {
-      _hue = cvCreateImage(cvGetSize(_img), 8, 1);
-    }
-    if(!_mask) {
-      _mask = cvCreateImage(cvGetSize(_img), 8, 1);
-    }
-    if(!_backproject) {
-      _backproject = cvCreateImage(cvGetSize(_img), 8, 1);
-    }
-    if(!_hsvImage) {
-      _hsvImage = cvCreateImage(cvGetSize(_img), 8, 3);
-      _hsvImage->origin = _img->origin;
-    }
-    if(!_hist) {
-      _hist = cvCreateHist(1, &hdims, CV_HIST_ARRAY, &hranges, 1);
-    }
-
-    cvCopy(_img, _hsvImage, 0);
-    cvCvtColor(_hsvImage, _hsv, CV_BGR2HSV);
-
-    cvInRangeS(_hsv, cvScalar(0, smin, MIN(vmin, vmax), 0),
-               cvScalar(180, 256, MAX(vmin, vmax), 0), _mask);
-    cvSplit(_hsv, _hue, 0, 0, 0);
 
     // don't want to do anything yet if there's no faces to choose from
     if ((!_trackingEnabled || _timeSpentTracking > 5000) && faces->total > 0) {
