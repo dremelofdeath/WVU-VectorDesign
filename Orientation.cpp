@@ -195,11 +195,11 @@ void Orientation::render(void) const {
     glScalef(_aspectRatio*0.58f, 0.58f, 1.0f);
   }
 
-  glScalef(1.5f, 1.5f, 1.0f);
+  //glScalef(1.5f, 1.5f, 1.0f);
 
   configureTextureParameters();
 
-  performRotation(_faceVector);
+  //performRotation(_faceVector);
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
@@ -273,10 +273,10 @@ void Orientation::idle(const int elapsed) {
     // draw face rects
     for(iface = 0; iface < faces->total; iface++) {
       CvRect face_rect = *(CvRect*)cvGetSeqElem(faces, iface);
-      cvRectangle(_img, cvPoint(face_rect.x*2,face_rect.y*2),
+      /*cvRectangle(_img, cvPoint(face_rect.x*2,face_rect.y*2),
                   cvPoint(2*(face_rect.x+face_rect.width),
                           2*(face_rect.y+face_rect.height)),
-                  CV_RGB(0, 255, 0), 3);
+                  CV_RGB(0, 255, 0), 3);*/
 
       // I'm just grabbing the last element
       // later let's get the one with the biggest area
