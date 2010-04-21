@@ -343,12 +343,12 @@ void Orientation::idle(const int elapsed) {
     // track_box is output, track_comp is the next piece of state information
     _trackWindow.x = track_comp.rect.x;
     _trackWindow.y = track_comp.rect.y;
-    _trackWindow.width = (track_comp.rect.width)/2; //scale these down because of the pyrdown in objectdetector
-    _trackWindow.height = (track_comp.rect.height)/2; //and again, holmes
+    _trackWindow.width = (track_comp.rect.width)*2; //scale these down because of the pyrdown in objectdetector
+    _trackWindow.height = (track_comp.rect.height)*2; //and again, holmes
 
     if( !_img->origin ) track_box.angle = -track_box.angle;
 
-    //cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
+    cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
 
     calculateFaceVector(_img, _trackWindow);
 
