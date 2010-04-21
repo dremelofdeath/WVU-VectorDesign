@@ -48,9 +48,6 @@ Orientation::~Orientation() {
   if(_backproject) {
     cvReleaseImage(&_backproject);
   }
-  if(_hsvImage) {
-    cvReleaseImage(&_hsvImage);
-  }
   if(_hist) {
     cvReleaseHist(&_hist);
   }
@@ -110,7 +107,6 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   _hsv = NULL;
   _hue = NULL;
   _mask = NULL;
-  _hsvImage = NULL;
   _hist = NULL;
 }
 
@@ -195,11 +191,11 @@ void Orientation::render(void) const {
     glScalef(_aspectRatio*0.58f, 0.58f, 1.0f);
   }
 
-  //glScalef(1.5f, 1.5f, 1.0f);
+  glScalef(1.5f, 1.5f, 1.0f);
 
   configureTextureParameters();
 
-  //performRotation(_faceVector);
+  performRotation(_faceVector);
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
@@ -213,26 +209,8 @@ void Orientation::render(void) const {
   glEnd();
 }
 
-//straight up highway robbed out of camshiftdemo.c
-CvScalar _hsv2rgb( float _hue ) {
-    int rgb[3], p, sector;
-    static const int sector_data[][3]=
-        {{0,2,1}, {1,2,0}, {1,0,2}, {2,0,1}, {2,1,0}, {0,1,2}};
-    _hue *= 0.033333333333333333333333333333333f;
-    sector = cvFloor(_hue);
-    p = cvRound(255*(_hue - sector));
-    p ^= sector & 1 ? 255 : 0;
-
-    rgb[sector_data[sector][0]] = 255;
-    rgb[sector_data[sector][1]] = 0;
-    rgb[sector_data[sector][2]] = p;
-
-    return cvScalar(rgb[2], rgb[1], rgb[0],0);
-}
-
-
 void Orientation::idle(const int elapsed) {
-  static const int vmin = 67, vmax = 256, smin = 105;
+  static const int vmin = 30, vmax = 256, smin = 30;
   int iface;
 
   _img = cvQueryFrame(_capture);
@@ -277,16 +255,11 @@ void Orientation::idle(const int elapsed) {
   if(!_backproject) {
     _backproject = cvCreateImage(cvGetSize(_img), 8, 1);
   }
-  if(!_hsvImage) {
-    _hsvImage = cvCreateImage(cvGetSize(_img), 8, 3);
-    _hsvImage->origin = _img->origin;
-  }
   if(!_hist) {
     _hist = cvCreateHist(1, &hdims, CV_HIST_ARRAY, &hranges, 1);
   }
 
-  cvCopy(_img, _hsvImage, 0);
-  cvCvtColor(_hsvImage, _hsv, CV_BGR2HSV);
+  cvCvtColor(_img, _hsv, CV_BGR2HSV);
 
   cvInRangeS(_hsv, cvScalar(0, smin, MIN(vmin, vmax), 0),
              cvScalar(180, 256, MAX(vmin, vmax), 0), _mask);
@@ -318,7 +291,7 @@ void Orientation::idle(const int elapsed) {
     }
 
     // don't want to do anything yet if there's no faces to choose from
-    if ((!_trackingEnabled || _timeSpentTracking > 5000) && faces->total > 0) {
+    if ((!_trackingEnabled || _timeSpentTracking > 10000) && faces->total > 0) {
       float max_val = 0.0f;
 
       _timeSpentTracking = 0;
@@ -356,10 +329,7 @@ void Orientation::idle(const int elapsed) {
     _trackWindow.width = track_comp.rect.width;
     _trackWindow.height = track_comp.rect.height;
 
-    if( !_hsvImage->origin ) track_box.angle = -track_box.angle;
-
-    // FIXME: this is debug code that shows the backprojection
-    cvCvtColor(_backproject, _img, CV_GRAY2BGR);
+    if( !_img->origin ) track_box.angle = -track_box.angle;
 
     cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
 
