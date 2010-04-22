@@ -34,9 +34,7 @@ class TCPSocket : public Socket
 #endif
 
 /*!	\class TCPSocket
- *	\brief ....
- *
- *	...detailed...
+ *	\brief Establishes a TCP connection over a socket
  */
 
 /*!	\fn TCPSocket(string const ip, string const port)
@@ -46,6 +44,9 @@ class TCPSocket : public Socket
  *	\param port
  *	  The desired port to establish the connection over.
  *	\memberof TCPSocket
+ */
+
+/*!	\overload TCPSocket()
  */
 
 /*!	\fn virtual void connectSocket()
@@ -60,7 +61,7 @@ class TCPSocket : public Socket
  *	\param length
  *	  The length of the data being sent.
  *	\return
- *	  .............
+ *	  The number of bytes.
  *	\memberof TCPSocket
  */
 
@@ -71,7 +72,7 @@ class TCPSocket : public Socket
  *	\param length
  *	  The expected length of the incoming data.
  *	\return
- *	  .......................
+ *	  The number of bytes.
  *	\memberof TCPSocket
  */
 

@@ -1,9 +1,7 @@
-/*
- *  handlers.h
- *  Nebula Horizon
- *
- *  Created by Zachary Murray on 11/24/09.
- *
+/*! \file handlers.h
+ *  \brief A set of I/O handling functions
+ *  \author Zachary Murray
+ *	\date 11/24/09
  */
 
 #ifdef WIN32
