@@ -342,12 +342,6 @@ void Orientation::idle(const int elapsed) {
 
     if( !_img->origin ) track_box.angle = -track_box.angle;
 
-    // More debug code. This makes the red ellipse visible.
-    if(KeyboardManager::getInstance().isKeyDown('f')
-       && KeyboardManager::getInstance().isKeyDown('e')) {
-      cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
-    }
-
     calculateFaceVector(_img, _trackWindow);
 
     _timeSpentTracking += elapsed;
@@ -357,6 +351,12 @@ void Orientation::idle(const int elapsed) {
   if(KeyboardManager::getInstance().isKeyDown('b')
      && KeyboardManager::getInstance().isKeyDown('p')) {
     cvCvtColor(_backproject, _img, CV_GRAY2BGR);
+  }
+
+  // More debug code. This makes the red ellipse visible.
+  if(_trackingEnabled && KeyboardManager::getInstance().isKeyDown('f')
+     && KeyboardManager::getInstance().isKeyDown('e')) {
+      cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
   }
 
   uploadTexture(_img);
