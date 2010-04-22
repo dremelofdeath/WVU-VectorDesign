@@ -215,6 +215,8 @@ void Orientation::idle(const int elapsed) {
   static const int vmin = 66, vmax = 256, smin = 66;
   static const int trimFactor = 20;
   static const int faceTimeThreshold = 3500;
+  CvBox2D track_box;
+  CvConnectedComp track_comp;
   int iface;
 
   _img = cvQueryFrame(_capture);
@@ -322,9 +324,6 @@ void Orientation::idle(const int elapsed) {
   }
 
   if(_trackingEnabled) {
-    CvBox2D track_box;
-    CvConnectedComp track_comp;
-
     //calculate back projection (do this every time we call camshift)
     cvCalcBackProject(&_hue, _backproject, _hist);
     cvAnd(_backproject, _mask, _backproject, 0);
