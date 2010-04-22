@@ -192,11 +192,12 @@ void Orientation::render(void) const {
     glScalef(_aspectRatio*0.58f, 0.58f, 1.0f);
   }
 
-  glScalef(1.5f, 1.5f, 1.0f);
-
   configureTextureParameters();
 
-  performRotation(_faceVector);
+  if(_trackingEnabled && !KeyboardManager::getInstance().isKeyDown('s')) {
+    glScalef(1.5f, 1.5f, 1.0f);
+    performRotation(_faceVector);
+  }
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
@@ -211,7 +212,9 @@ void Orientation::render(void) const {
 }
 
 void Orientation::idle(const int elapsed) {
-  static const int vmin = 30, vmax = 256, smin = 30;
+  static const int vmin = 66, vmax = 256, smin = 66;
+  static const int trimFactor = 20;
+  static const int faceTimeThreshold = 3500;
   int iface;
 
   _img = cvQueryFrame(_capture);
@@ -239,8 +242,14 @@ void Orientation::idle(const int elapsed) {
       _detector->setMinSize(cvSize(_img->width/16, _img->height/16));
   }
 
-  if(_timeSpentTracking > 5000) {
+  if(_timeSpentTracking > faceTimeThreshold || !_trackingEnabled) {
     resumeFaceDetection();
+    _timeSpentTracking = 0;
+  }
+
+  if(KeyboardManager::getInstance().isKeyDown('r')) {
+    resumeFaceDetection();
+    _trackingEnabled = false;
   }
 
   // camshift initializations
@@ -282,17 +291,18 @@ void Orientation::idle(const int elapsed) {
 
       // I'm just grabbing the last element
       // later let's get the one with the biggest area
-      _trackWindow.x = face_rect.x * 2;
-      _trackWindow.y = face_rect.y * 2;
-      _trackWindow.width = face_rect.width * 2;
-      _trackWindow.height = face_rect.height * 2;
+      _trackWindow.x = face_rect.x * 2 + trimFactor;
+      _trackWindow.y = face_rect.y * 2 + trimFactor;
+      _trackWindow.width = face_rect.width * 2 - trimFactor;
+      _trackWindow.height = face_rect.height * 2 - trimFactor;
 
       // let's try to use camshift instead.
       //calculateFaceVector(_img, face_rect);
     }
 
     // don't want to do anything yet if there's no faces to choose from
-    if ((!_trackingEnabled || _timeSpentTracking > 10000) && faces->total > 0) {
+    if ((!_trackingEnabled || _timeSpentTracking > faceTimeThreshold)
+        && faces->total > 0) {
       float max_val = 0.0f;
 
       _timeSpentTracking = 0;
@@ -332,23 +342,26 @@ void Orientation::idle(const int elapsed) {
 
     if( !_img->origin ) track_box.angle = -track_box.angle;
 
-    cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
+    // More debug code. This makes the red ellipse visible.
+    if(KeyboardManager::getInstance().isKeyDown('f')
+       && KeyboardManager::getInstance().isKeyDown('e')) {
+      cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
+    }
 
     calculateFaceVector(_img, _trackWindow);
 
     _timeSpentTracking += elapsed;
-
-    pauseFaceDetection();
-
   }
 
-  //Debug code. This makes backprojection visible.
+  // Debug code. This makes backprojection visible.
   if(KeyboardManager::getInstance().isKeyDown('b')
      && KeyboardManager::getInstance().isKeyDown('p')) {
     cvCvtColor(_backproject, _img, CV_GRAY2BGR);
   }
 
   uploadTexture(_img);
+
+  pauseFaceDetection();
 }
 
 void Orientation::regenerateTexture() {
@@ -391,8 +404,8 @@ void Orientation::performRotation(const float vec[3]) const {
   theta_xz += vec[0] >= 0.0f ? -90.0f : 90.0f;
   glTranslatef(0.0f, 0.0f, -0.95f);
   //if(!is_x_zero) glRotatef(theta_xz, 0.0f, 1.0f, 0.0f);
-  glRotatef(60.0f*vec[0], 0.0f, 1.0f, 0.0f);
-  glRotatef(-60.0f*vec[1], 1.0f, 0.0f, 0.0f);
+  glRotatef((45.f/_aspectRatio)*vec[0], 0.0f, 1.0f, 0.0f);
+  glRotatef(-45.0f*vec[1], 1.0f, 0.0f, 0.0f);
   glTranslatef(0.0f, 0.0f, 0.95f);
 }
 
@@ -418,7 +431,7 @@ void Orientation::calculateFaceVector(IplImage* img, float fx,
                                       float fy, float fsize) {
   float x_mid_img = (float)img->width/2;
   float y_mid_img = (float)img->height/2;
-  float img_area = img->width*img->height;
+  float img_area = (float)(img->width*img->height);
   _faceVector[0] = (fx-x_mid_img)/x_mid_img;
   _faceVector[1] = (fy-y_mid_img)/y_mid_img;
   _faceVector[2] = sqrt(img_area/fsize);
