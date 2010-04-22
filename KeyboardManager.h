@@ -1,9 +1,7 @@
-/*
- *  KeyboardManager.h
- *  Nebula Horizon
- *
- *  Created by Zachary Murray on 11/24/09.
- *
+/*! \file KeyboardManager.h
+ *  \brief Defines a class for managing the keyboard.
+ *	\author Zachary Murray
+ *  \date 11/24/09
  */
 
 #ifndef NHZ_KEYBOARDMANAGER_H
@@ -14,8 +12,8 @@
 class KeyboardManager {
   public:
     static KeyboardManager& getInstance();
-    bool isKeyDown(unsigned char key); // used for ascii keys
-    bool isSpecialKeyDown(int key); // used for special keys
+    bool isKeyDown(unsigned char key);
+    bool isSpecialKeyDown(int key);
     void updateKeyState(unsigned char key, bool isDown);
     void updateSpecialKeyState(int key, bool isDown);
   protected:
@@ -29,3 +27,48 @@ class KeyboardManager {
 };
 
 #endif
+
+/*! \class KeyboardManager
+ *	\brief A class to manage the keyboard.
+ *
+ *	A class containing functions to both check and update the current value of
+ *	ascii, function, and directional keys on the keyboard.  The latter two
+ *	types of keys are also known as 'special keys', and will be refered to as
+ *	such in this documentation and the code.
+ */
+
+/*!	\fn bool isKeyDown(unsigned char key)
+ *	\brief Determines if an ascii key is pressed.
+ *	\param key
+ *	  The key to check.
+ *	\return
+ *	  The boolean status of key
+ *	\memberof KeyboardManager
+ */
+
+/*!	\fn isSpecialKeyDown(int key)
+ *	\brief Determines if a special key is pressed.
+ *	\param key
+ *	  The key to check.
+ *	\return
+ *	  The boolean status of key
+ * \memberof KeyboardManager
+ */
+
+/*!	\fn updateKeyState(unsigned char key, bool isDown)
+ *	\brief Updates the state of an ascii key.
+ *	\param key
+ *	  The key whose status is to be updated.
+ *	\param isDown
+ *	  The status to set to key.
+ *	\memberof KeyboardManager
+ */
+
+/*!	\fn void updateSpecialKeyState(int key, bool isDown)
+ *	\brief Updates the state of a special key.
+ *	\param key
+ *	  The key whose status is to be updated.
+ *	\param isDown
+ *	  The status to set to key.
+ *	\memberof KeyboardManager
+ */
