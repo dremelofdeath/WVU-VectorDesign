@@ -1,3 +1,8 @@
+/*! \file NetworkException.h
+ *  \brief Defines a class to handle networking exceptions.
+ *  \author Ben Roberts
+ */
+
 #ifndef __CS_481_NETWORK_EXCEPTION__
 #define __CS_481_NETWORK_EXCEPTION__
 
@@ -19,3 +24,14 @@ class NetworkException : public exception
 };
 
 #endif
+
+/*!	\class NetworkException
+ *	\brief A class to handle networking exceptions.
+ */
+
+/*!	\fn NetworkException(string message) throw()
+ *	\brief Throws a network exception.
+ *	\param message
+ *	  Desired message to be thrown (optional).
+ *	\memberof NetworkException
+ */

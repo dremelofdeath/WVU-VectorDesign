@@ -73,6 +73,16 @@ class ObjectDetector {
  *	  The minimum size a rectangle must be to be considered.
  *	\param cascadePath 
  *	  Filepath to the desired haar cascade.
+ *	\memberof ObjectDetector
+ */
+
+/*!	\overload ObjectDetector(const float scaleFactor, const int minNeighbors,
+ *							 CvSize minSize);
+ *	\memberof ObjectDetector
+ */
+
+/*!	\overload ObjectDetector()
+ *	\memberof ObjectDetector
  */
 
 /*! \fn CvSeq* detect(const IplImage* img)
