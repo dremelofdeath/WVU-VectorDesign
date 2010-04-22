@@ -47,7 +47,7 @@ class ObjectDetector {
 #endif
 
 /*!	\class ObjectDetector
- *	\brief Provides an interface for detecting ojects using a haar classifier.
+ *	\brief Provides an interface for detecting ojects using a haar cascade.
  *
  *	This is an interface to the object detection functionality that
  *	is built into OpenCV.  It contains functions that are used to setup
@@ -56,9 +56,14 @@ class ObjectDetector {
  *	types of objects.
  */
 
+/*! \fn ~ObjectDetector()
+ *	\brief Destructor
+ *	\memberof ObjectDetector
+ */
+
 /*! \fn ObjectDetector(const float scaleFactor, const int minNeighbors,
  *					   CvSize minSize, const char* cascadePath)
- *	\brief The constructor for the ObjectDetector class.
+ *	\brief Constructor
  *	\param scaleFactor 
  *	  The factor the search window is scaled by between scans.
  *	\param minNeighbors 
@@ -68,11 +73,6 @@ class ObjectDetector {
  *	  The minimum size a rectangle must be to be considered.
  *	\param cascadePath 
  *	  Filepath to the desired haar cascade.
- */
-
-/*! \fn void init(const float scaleFactor, const int minNeighbors, 
- *				  CvSize minSize, const char* cascadePath)
- *	\brief Initializes the necessary parameters for object detection.
  */
 
 /*! \fn CvSeq* detect(const IplImage* img)
