@@ -8,7 +8,7 @@ NetworkException::NetworkException(string message)
 { this->message = message;
 }
 
-const char * NetworkException::message() throw()
+const char * NetworkException::Message() throw()
 { return message.c_str();
 }
 

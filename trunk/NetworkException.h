@@ -17,7 +17,7 @@ class NetworkException //: public exception
     NetworkException() throw();
     NetworkException(string message) throw();
 
-    const char * message() throw();
+    const char * Message() throw();
     virtual const char * what() const throw();
 
   private:
