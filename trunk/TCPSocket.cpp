@@ -60,7 +60,8 @@ int TCPSocket::receiveData(char * const data, int length)
 { int bytes = 0;
   bytes = recv(getSocket(), data, length, 0);
   if(bytes < 0)
-  { string str = "Receive failed: " + WSAGetLastError();
+  { int errorcode = WSAGetLastError();
+	string str = "Receive failed: " + errorcode;
     throw NetworkException(str);
   }
 
