@@ -3,14 +3,14 @@
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
+#endif
 
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
+#include <WSPiApi.h>
 #include <string>
 
 #include "NetworkException.h"
-
-#endif
 
 using std::string;
 
