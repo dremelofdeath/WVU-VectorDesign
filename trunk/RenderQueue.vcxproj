@@ -55,7 +55,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cv210d.lib;cxcore210d.lib;highgui210d.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cv210d.lib;cxcore210d.lib;highgui210d.lib;freeglut.lib;ws2_32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY /D /V /Y "$(ProjectDir)resources\*.xml" "$(OutDir)"
@@ -79,7 +79,7 @@ XCOPY /D /V /Y "$(ProjectDir)resources\*.txt" "$(OutDir)"</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>cv210d.lib;cxcore210d.lib;highgui210d.lib;freeglut.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cv210d.lib;cxcore210d.lib;highgui210d.lib;freeglut.lib;ws2_32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY /D /V /Y "$(ProjectDir)resources\*.xml" "$(OutDir)"
