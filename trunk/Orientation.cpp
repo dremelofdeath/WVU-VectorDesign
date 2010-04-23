@@ -317,6 +317,10 @@ void Orientation::idle(const int elapsed) {
         NHZ_ERR(e.what());
       }
 
+      if(!_chat) {
+        _chat = new IplImage;
+      }
+
       _clienting = true;
     }
   }
@@ -341,10 +345,10 @@ void Orientation::idle(const int elapsed) {
     NHZ_ERR("Could not query frame.\n");
   }
 
-  if(_hosting) {
+  if(_hosting && _img) {
     _receiver->sendData(_img->imageData, _img->imageSize);
   }
-  else if(_clienting) {
+  else if(_clienting && _img) {
     _caller->sendData(_img->imageData, _img->imageSize);
   }
 
