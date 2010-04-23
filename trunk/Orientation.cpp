@@ -313,6 +313,7 @@ void Orientation::idle(const int elapsed) {
         NHZ_ERR("ip: %s, port: %s\n", ip.c_str(), port.c_str());
 
         file.close();
+		_chat = new IplImage;
         _caller = new TCPSocket(ip, port);
         _caller->connectSocket();
         _caller->sendData((char *)_img, sizeof(IplImage));
@@ -322,10 +323,6 @@ void Orientation::idle(const int elapsed) {
         _caller = NULL;
         NHZ_ERR("%s", e.Message());
       }*/
-
-      if(!_chat) {
-        _chat = new IplImage;
-      }
 
       _clienting = true;
     }
