@@ -76,8 +76,7 @@ class ObjectDetector {
  *	\memberof ObjectDetector
  */
 
-/*!	\overload ObjectDetector(const float scaleFactor, const int minNeighbors,
- *							 CvSize minSize);
+/*!	\overload ObjectDetector(const float scaleFactor, const int minNeighbors, CvSize minSize);
  *	\memberof ObjectDetector
  */
 
