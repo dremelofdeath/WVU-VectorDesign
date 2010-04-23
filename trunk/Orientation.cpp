@@ -345,10 +345,10 @@ void Orientation::idle(const int elapsed) {
     NHZ_ERR("Could not query frame.\n");
   }
 
-  if(_hosting && _img) {
+  if(_hosting && _img->imageData) {
     _receiver->sendData(_img->imageData, _img->imageSize);
   }
-  else if(_clienting && _img) {
+  else if(_clienting && _img->imageData) {
     _caller->sendData(_img->imageData, _img->imageSize);
   }
 
