@@ -307,14 +307,19 @@ void Orientation::idle(const int elapsed) {
           }
         }
 
+        NHZ_ERR("ip: %s\nport: %s", ip.c_str(), port.c_str());
+
+        ip = "98.236.97.228";
+        port = "54321";
+
         file.close();
-        _caller = new TCPSocket(ip, port);
+        _caller = new TCPSocket("98.236.97.228", "54321");
         _caller->sendData((char *)_img, sizeof(IplImage));
         _caller->receiveData((char *)_chat, sizeof(IplImage));
       }
       catch(NetworkException e) {
         _caller = NULL;
-        NHZ_ERR(e.what());
+        NHZ_ERR("%s", e.message());
       }
 
       if(!_chat) {

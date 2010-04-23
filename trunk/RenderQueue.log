@@ -1,45 +1,42 @@
-﻿Build started 4/22/2010 9:23:03 PM.
-     1>Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" on node 7 (build target(s)).
-     1>_PrepareForBuild:
+﻿Build started 4/23/2010 1:57:55 AM.
+     1>Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" on node 25 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release\RenderQueue.lastbuildstate".
+       _PrepareForBuild:
          Creating "Release\RenderQueue.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Orientation.cpp
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt handlers.cpp KeyboardManager.cpp NetworkException.cpp nhz_common.cpp ObjectDetector.cpp Orientation.cpp PixelPadder.cpp Renderable.cpp RenderQueue.cpp ServerSocket.cpp Socket.cpp TCPSocket.cpp TruePerspective.cpp
+         handlers.cpp
+     1>c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(24): error C2365: 'NetworkException::message' : redefinition; previous definition was 'member function'
+                 c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(20) : see declaration of 'NetworkException::message'
+         KeyboardManager.cpp
+         NetworkException.cpp
+     1>c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(24): error C2365: 'NetworkException::message' : redefinition; previous definition was 'member function'
+                 c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(20) : see declaration of 'NetworkException::message'
+     1>NetworkException.cpp(4): error C2659: '=' : function as left operand
+     1>NetworkException.cpp(8): error C2659: '=' : function as left operand
+     1>NetworkException.cpp(12): error C2228: left of '.c_str' must have class/struct/union
+     1>NetworkException.cpp(16): error C2228: left of '.c_str' must have class/struct/union
+         nhz_common.cpp
+         ObjectDetector.cpp
          Orientation.cpp
-       ResourceCompile:
-         All outputs are up-to-date.
-       Link:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.exe" /INCREMENTAL:NO /NOLOGO cv210d.lib cxcore210d.lib highgui210d.lib freeglut.lib Ws2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\RenderQueue.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.lib" /MACHINE:X86 Release\RenderQueue.res
-         Release\handlers.obj
-         Release\KeyboardManager.obj
-         Release\NetworkException.obj
-         Release\nhz_common.obj
-         Release\ObjectDetector.obj
-         Release\Orientation.obj
-         Release\PixelPadder.obj
-         Release\Renderable.obj
-         Release\RenderQueue.obj
-         Release\ServerSocket.obj
-         Release\Socket.obj
-         Release\TCPSocket.obj
-         Release\TruePerspective.obj
-         Generating code
-         Finished generating code
-         RenderQueue.vcxproj -> C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.exe
-       Manifest:
-         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.exe;#1" /manifest Release\RenderQueue.exe.intermediate.manifest
-       PostBuildEvent:
-         XCOPY /D /V /Y "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\resources\*.xml" "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\"
-         XCOPY /D /V /I /Y "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\resources\*.dll" "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\"
-         XCOPY /D /V /Y "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\resources\*.txt" "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\"
-         :VCEnd
-         0 File(s) copied
-         0 File(s) copied
-         0 File(s) copied
-       _AfterBuild:
-         Deleting file "Release\RenderQueue.unsuccessfulbuild".
-         Touching "Release\RenderQueue.lastbuildstate".
-     1>Done Building Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" (build target(s)).
+     1>c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(24): error C2365: 'NetworkException::message' : redefinition; previous definition was 'member function'
+                 c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(20) : see declaration of 'NetworkException::message'
+         PixelPadder.cpp
+         Renderable.cpp
+         RenderQueue.cpp
+         ServerSocket.cpp
+     1>c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(24): error C2365: 'NetworkException::message' : redefinition; previous definition was 'member function'
+                 c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(20) : see declaration of 'NetworkException::message'
+         Socket.cpp
+     1>c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(24): error C2365: 'NetworkException::message' : redefinition; previous definition was 'member function'
+                 c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(20) : see declaration of 'NetworkException::message'
+         TCPSocket.cpp
+     1>c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(24): error C2365: 'NetworkException::message' : redefinition; previous definition was 'member function'
+                 c:\users\brober12\documents\class\cs-481\true perspective\render\NetworkException.h(20) : see declaration of 'NetworkException::message'
+         TruePerspective.cpp
+     1>Done Building Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" (rebuild target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:04.06
+Time Elapsed 00:00:13.74
