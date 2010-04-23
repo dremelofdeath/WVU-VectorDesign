@@ -10,12 +10,12 @@ TCPSocket::TCPSocket(string ip, string port) : Socket(ip, port)
 
 void TCPSocket::connectSocket()
 { ZeroMemory(&_hints, sizeof(_hints));
-	_hints->ai_family = AF_UNSPEC;
-	_hints->ai_socktype = SOCK_STREAM;
-	_hints->ai_protocol = IPPROTO_TCP;
+	_hints.ai_family = AF_UNSPEC;
+	_hints.ai_socktype = SOCK_STREAM;
+	_hints.ai_protocol = IPPROTO_TCP;
 
   _result = NULL;
-	int error = getaddrinfo(getIp().c_str(), getPort().c_str(), _hints, &_result);
+	int error = getaddrinfo(getIp().c_str(), getPort().c_str(), &_hints, &_result);
 	if(error != 0)
 	{	string str= "getaddrinfo failed: "  + error;
 		WSACleanup();
