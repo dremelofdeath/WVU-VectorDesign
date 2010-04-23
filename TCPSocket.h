@@ -27,7 +27,7 @@ class TCPSocket : public Socket
     WSADATA _wsaData;
     struct addrinfo *_result;
     struct addrinfo *_ptr;
-    struct addrinfo *_hints;
+    struct addrinfo _hints;
     SOCKET _sock;
 };
 
