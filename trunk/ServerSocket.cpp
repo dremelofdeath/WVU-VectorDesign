@@ -33,7 +33,8 @@ void ServerSocket::serve()
 
   setServerSocket(socket(result->ai_family, result->ai_socktype, result->ai_protocol));
   if(getServerSocket() == INVALID_SOCKET)
-  { string str = "Error at socket(): " + WSAGetLastError();
+  { int errorcode = WSAGetLastError();
+	string str = "Error at socket(): " + errorcode;
     freeaddrinfo(result);
     WSACleanup();
     throw NetworkException(str);
@@ -51,7 +52,8 @@ void ServerSocket::serve()
 
   error = listen(getServerSocket(), SOMAXCONN);
   if(error == SOCKET_ERROR)
-  { string str = "Error at bind(): " + WSAGetLastError();
+  { int errorcode = WSAGetLastError();
+	string str = "Error at bind(): " + errorcode;
     closesocket(getServerSocket());
     WSACleanup();
     throw NetworkException(str);
@@ -59,7 +61,8 @@ void ServerSocket::serve()
 
   setSocket(accept(getServerSocket(), NULL, NULL));
   if(getSocket() == INVALID_SOCKET)
-  { string str = "Accept failed: " + WSAGetLastError();
+  { int errorcode = WSAGetLastError();
+	string str = "Accept failed: " + errorcode;
     closesocket(getSocket());
     WSACleanup();
     throw NetworkException(str);

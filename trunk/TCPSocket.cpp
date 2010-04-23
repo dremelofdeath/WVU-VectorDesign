@@ -25,7 +25,8 @@ void TCPSocket::connectSocket()
 	_ptr = _result;
 	setSocket(socket(_ptr->ai_family, _ptr->ai_socktype, _ptr->ai_protocol));
 	if(getSocket() == INVALID_SOCKET)
-	{	string str = "Error at socket(): " + WSAGetLastError();
+	{	int errorcode = WSAGetLastError();
+		string str = "Error at socket(): " + errorcode;
 		freeaddrinfo(_result);
 		WSACleanup();
 		throw NetworkException();
