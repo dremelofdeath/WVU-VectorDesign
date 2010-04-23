@@ -1,28 +1,13 @@
-﻿Build started 4/20/2010 8:07:24 PM.
-     1>Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" on node 32 (rebuild target(s)).
-     1>_PrepareForClean:
-         Deleting file "Release\RenderQueue.lastbuildstate".
-       _PrepareForBuild:
+﻿Build started 4/22/2010 8:10:10 PM.
+     1>Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" on node 80 (build target(s)).
+     1>_PrepareForBuild:
          Creating "Release\RenderQueue.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt handlers.cpp KeyboardManager.cpp NetworkException.cpp nhz_common.cpp ObjectDetector.cpp Orientation.cpp PixelPadder.cpp Renderable.cpp RenderQueue.cpp ServerSocket.cpp Socket.cpp TCPSocket.cpp TruePerspective.cpp
-         handlers.cpp
-         KeyboardManager.cpp
-         NetworkException.cpp
-         nhz_common.cpp
-         ObjectDetector.cpp
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Orientation.cpp handlers.cpp
          Orientation.cpp
-     1>Orientation.cpp(311): warning C4101: 'face_found' : unreferenced local variable
-         PixelPadder.cpp
-         Renderable.cpp
-         RenderQueue.cpp
-         ServerSocket.cpp
-     1>ServerSocket.cpp(19): warning C4101: 'ptr' : unreferenced local variable
-         Socket.cpp
-         TCPSocket.cpp
-         TruePerspective.cpp
+         handlers.cpp
        ResourceCompile:
-         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"Release\RenderQueue.res" RenderQueue.rc 
+         All outputs are up-to-date.
        Link:
          C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.exe" /INCREMENTAL:NO /NOLOGO cv210d.lib cxcore210d.lib highgui210d.lib freeglut.lib Ws2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\RenderQueue.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\RenderQueue.lib" /MACHINE:X86 Release\RenderQueue.res
          Release\handlers.obj
@@ -46,14 +31,16 @@
        PostBuildEvent:
          XCOPY /D /V /Y "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\resources\*.xml" "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\"
          XCOPY /D /V /I /Y "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\resources\*.dll" "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\"
+         XCOPY /D /V /Y "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\resources\*.txt" "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Release\"
          :VCEnd
+         0 File(s) copied
          0 File(s) copied
          0 File(s) copied
        _AfterBuild:
          Deleting file "Release\RenderQueue.unsuccessfulbuild".
          Touching "Release\RenderQueue.lastbuildstate".
-     1>Done Building Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" (rebuild target(s)).
+     1>Done Building Project "C:\Users\brober12\Documents\Class\CS-481\True Perspective\Render\RenderQueue.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:14.57
+Time Elapsed 00:00:07.44

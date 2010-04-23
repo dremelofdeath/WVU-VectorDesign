@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <fstream>
+#include <string>
 
 #include <windows.h>
 #include <GL/gl.h>
@@ -49,8 +51,17 @@ Orientation::~Orientation() {
   if(_backproject) {
     cvReleaseImage(&_backproject);
   }
+  if(_chat) {
+    cvReleaseImage(&_chat);
+  }
   if(_hist) {
     cvReleaseHist(&_hist);
+  }
+  if(_receiver != NULL) {
+    delete _receiver;
+  }
+  if(_caller != NULL) {
+    delete _caller;
   }
 }
 
@@ -104,6 +115,39 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   _faceVector[1] = initialFaceVector[1];
   _faceVector[2] = initialFaceVector[2];
 
+  try {
+    std::ifstream file("host.txt");
+    std::string ip = "localhost";
+    std::string port = "54321";
+    if(file.is_open()) {
+      const int SIZE = 20;
+      char str[SIZE];
+      
+      while(!file.eof()) {
+        file.getline(str, SIZE, '=');
+        
+        if(std::string(str) == "ip") {
+          file.getline(str, SIZE);
+          ip = std::string(str);
+        }
+        else if(std::string(str) == "port") {
+          file.getline(str, SIZE);
+          port = std::string(str);
+        }
+      }
+    }
+    
+    file.close();
+    _receiver = new ServerSocket(ip, port);
+  }
+  catch(NetworkException e) {
+    _receiver = NULL;
+    NHZ_ERR(e.what());
+  }
+
+  _hosting = false;
+  _clienting = false;
+  _caller = NULL;
   _backproject = NULL;
   _hsv = NULL;
   _hue = NULL;
@@ -219,9 +263,89 @@ void Orientation::idle(const int elapsed) {
   CvConnectedComp track_comp;
   int iface;
 
+  if(!_hosting || !_clienting) {
+    if(KeyboardManager::getInstance().isKeyDown('w') && _receiver) {
+      _receiver->serve();
+      if(!_chat) {
+        _chat = new IplImage;
+      }
+
+      try {
+        _receiver->receiveData((char *)_chat, sizeof(IplImage));
+        _receiver->sendData((char *)_img, sizeof(IplImage));
+
+        _chat->imageData = (char *)malloc(_chat->imageSize * sizeof(char));
+
+        _hosting = true;
+      }
+      catch(NetworkException e) {
+        _hosting = false;
+        NHZ_ERR(e.what());
+      }
+    }
+
+    if(KeyboardManager::getInstance().isKeyDown('c')) {
+      try {
+        std::ifstream file("client.txt");
+        std::string ip = "localhost";
+        std::string port = "54321";
+        if(file.is_open()) {
+          const int SIZE = 20;
+          char str[SIZE];
+          
+          while(!file.eof()) {
+            file.getline(str, SIZE, '=');
+            
+            if(std::string(str) == "ip") {
+              file.getline(str, SIZE);
+              ip = std::string(str);
+            }
+            else if(std::string(str) == "port") {
+              file.getline(str, SIZE);
+              port = std::string(str);
+            }
+          }
+        }
+
+        file.close();
+        _caller = new TCPSocket(ip, port);
+        _caller->sendData((char *)_img, sizeof(IplImage));
+        _caller->receiveData((char *)_chat, sizeof(IplImage));
+      }
+      catch(NetworkException e) {
+        _caller = NULL;
+        NHZ_ERR(e.what());
+      }
+
+      _clienting = true;
+    }
+  }
+  else {
+    if(KeyboardManager::getInstance().isKeyDown('q')) {
+      if(_caller) {
+        _caller->disconnect();
+        delete _caller;
+        _caller = NULL;
+      }
+      else {
+        _receiver->disconnect();
+      }
+
+      _hosting = false;
+      _clienting = false;
+    }
+  }
+
   _img = cvQueryFrame(_capture);
   if(!_img) {
     NHZ_ERR("Could not query frame.\n");
+  }
+
+  if(_hosting) {
+    _receiver->sendData(_img->imageData, _img->imageSize);
+  }
+  else if(_clienting) {
+    _caller->sendData(_img->imageData, _img->imageSize);
   }
 
   _aspectRatio = ((float)_img->width)/((float)_img->height);
@@ -358,7 +482,17 @@ void Orientation::idle(const int elapsed) {
       cvEllipseBox(_img, track_box, CV_RGB(255,0,0), 3, CV_AA, 0);
   }
 
-  uploadTexture(_img);
+  if(_hosting) {
+    _receiver->receiveData(_chat->imageData, _chat->imageSize);
+    uploadTexture(_chat);
+  }
+  else if(_clienting) {
+    _caller->receiveData(_chat->imageData, _chat->imageSize);
+    uploadTexture(_chat);
+  }
+  else {
+    uploadTexture(_img);
+  }
 
   pauseFaceDetection();
 }

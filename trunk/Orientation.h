@@ -1,7 +1,11 @@
 #ifndef VECTOR_ORIENTATION_H
 #define VECTOR_ORIENTATION_H
 
+#ifdef WIN32
 #include <windows.h>
+#endif
+
+//#include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/freeglut.h>
@@ -11,6 +15,9 @@
 #include "Renderable.h"
 #include "PixelPadder.h"
 #include "ObjectDetector.h"
+#include "ServerSocket.h"
+#include "TCPSocket.h"
+#include "NetworkException.h"
 
 class Orientation : public Renderable
 {
@@ -42,14 +49,18 @@ class Orientation : public Renderable
     bool _usingPadding, _useSubImagePadding;
     float _aspectRatio, _paddingScaleFactor;
     bool _useFaceDetection, _trackingEnabled;
+    bool _hosting, _clienting;
     PixelPadder* _padder;
     ObjectDetector* _detector;
     CvRect _trackWindow;
     CvHistogram* _hist;
     CvCapture* _capture;
+    ServerSocket* _receiver;
+    TCPSocket* _caller;
 		GLuint _frameTex;
     CvFont _font, _smallfont;
     IplImage* _img;
+    IplImage* _chat;
     IplImage* _backproject;
     IplImage* _hsv;
     IplImage* _hue;
