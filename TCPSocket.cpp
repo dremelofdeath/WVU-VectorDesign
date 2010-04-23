@@ -47,7 +47,8 @@ void TCPSocket::connectSocket()
 int TCPSocket::sendData(char const * const data, int length)
 { int bytes = send(getSocket(), data, length, 0);
   if(bytes == SOCKET_ERROR)
-  { string str = "Send failed: " + WSAGetLastError();
+  { int errorcode = WSAGetLastError();
+    string str = "Send failed: " + errorcode;
     throw NetworkException(str);
   }
 

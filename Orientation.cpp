@@ -285,7 +285,7 @@ void Orientation::idle(const int elapsed) {
     }
 
     if(KeyboardManager::getInstance().isKeyDown('c')) {
-      try {
+      //try {
         std::ifstream file("client.txt");
         std::string ip = "localhost";
         std::string port = "54321";
@@ -307,7 +307,7 @@ void Orientation::idle(const int elapsed) {
           }
         }
 
-        NHZ_ERR("ip: %s\nport: %s", ip.c_str(), port.c_str());
+        NHZ_ERR("ip: %s, port: %s\n", ip.c_str(), port.c_str());
 
         ip = "98.236.97.228";
         port = "54321";
@@ -316,11 +316,11 @@ void Orientation::idle(const int elapsed) {
         _caller = new TCPSocket("98.236.97.228", "54321");
         _caller->sendData((char *)_img, sizeof(IplImage));
         _caller->receiveData((char *)_chat, sizeof(IplImage));
-      }
+      /*}
       catch(NetworkException e) {
         _caller = NULL;
-        NHZ_ERR("%s", e.message());
-      }
+        NHZ_ERR("%s", e.Message());
+      }*/
 
       if(!_chat) {
         _chat = new IplImage;
