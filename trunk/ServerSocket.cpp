@@ -41,7 +41,8 @@ void ServerSocket::serve()
 
   error = bind(getServerSocket(), result->ai_addr, (int)result->ai_addrlen);
   if(error == SOCKET_ERROR)
-  { string str = "Bind failed: " + WSAGetLastError();
+  { int errorcode = WSAGetLastError();
+	string str = "Bind failed: " + errorcode;
     freeaddrinfo(result);
     closesocket(getServerSocket());
     WSACleanup();
