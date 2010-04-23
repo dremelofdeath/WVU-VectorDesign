@@ -34,7 +34,8 @@ void TCPSocket::connectSocket()
 
   error = connect(getSocket(), _ptr->ai_addr, (int)_ptr->ai_addrlen);
   if(error == SOCKET_ERROR)
-  {   closesocket(getSocket());
+  {   int errorcode = WSAGetLastError();
+	  closesocket(getSocket());
       setSocket(INVALID_SOCKET);
   }
   
