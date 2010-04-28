@@ -16,6 +16,7 @@
 #include "KeyboardManager.h"
 #include "ObjectDetector.h"
 #include "Orientation.h"
+#include "RawTextureLoader.h"
 
 //look these are some static variables and they probably don't even belong here but they're here for now, so deal with it
 static int hdims = 16;
@@ -55,7 +56,7 @@ Orientation::~Orientation() {
     cvReleaseImage(&_backproject);
   }
   if(_chat) {
-    cvReleaseImage(&_chat);
+    //cvReleaseImage(&_chat);
   }
   if(_hist) {
     cvReleaseHist(&_hist);
@@ -156,6 +157,10 @@ void Orientation::initialize(int deviceID, GLuint frameTexture) {
   _hue = NULL;
   _mask = NULL;
   _hist = NULL;
+
+  RawTextureLoader loader;
+  std::ifstream eaststr("east.raw", std::ios::in | std::ios::binary);
+  _staticImage = loader.loadTexture(eaststr, 2048, 2048);
 }
 
 void Orientation::setDevice(int deviceID) {
@@ -242,7 +247,7 @@ void Orientation::render(void) const {
   configureTextureParameters();
 
   if(_trackingEnabled && !KeyboardManager::getInstance().isKeyDown('s')) {
-    glScalef(1.5f, 1.5f, 1.0f);
+    glScalef(3.0f, 3.0f, 1.0f);
     performRotation(_faceVector);
   }
 
@@ -498,7 +503,7 @@ void Orientation::idle(const int elapsed) {
     uploadTexture(_chat);
   }
   else {
-    uploadTexture(_img);
+    //uploadTexture(_img);
   }
 
   pauseFaceDetection();
@@ -509,7 +514,7 @@ void Orientation::regenerateTexture() {
 }
 
 void Orientation::configureTextureParameters() const {
-  glBindTexture(GL_TEXTURE_2D, _frameTex); // bind the texture to its array
+  glBindTexture(GL_TEXTURE_2D, _staticImage); // bind the texture to its array
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
   if(!_usingPadding) {
@@ -544,7 +549,7 @@ void Orientation::performRotation(const float vec[3]) const {
   theta_xz += vec[0] >= 0.0f ? -90.0f : 90.0f;
   glTranslatef(0.0f, 0.0f, -0.95f);
   //if(!is_x_zero) glRotatef(theta_xz, 0.0f, 1.0f, 0.0f);
-  glRotatef((45.f/_aspectRatio)*vec[0], 0.0f, 1.0f, 0.0f);
+  glRotatef((45.f)*vec[0], 0.0f, 1.0f, 0.0f);
   glRotatef(-45.0f*vec[1], 1.0f, 0.0f, 0.0f);
   glTranslatef(0.0f, 0.0f, 0.95f);
 }
