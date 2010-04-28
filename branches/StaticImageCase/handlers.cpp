@@ -211,14 +211,14 @@ void set_window_id(int id) {
 }
 
 void main_springload() {
-#ifdef WIN32
-  TCHAR szTitle[MAX_LOADSTRING];
-  USES_CONVERSION;
-  LoadString(win32_get_hInstance(), IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-  const char *title = T2A(szTitle);
-#else
-  const char *title = "True Perspective";
-#endif
+//#ifdef WIN32
+  //TCHAR szTitle[MAX_LOADSTRING];
+ // USES_CONVERSION;
+ // LoadString(win32_get_hInstance(), IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+//  const char *title = T2A(szTitle);
+//#else
+  const char *title = "True Perspective Image Demo";
+//#endif
   set_window_id(create_window(title, 40, 40, 800, 600));
   //atexit(&exit_callback);
   create_callbacks();

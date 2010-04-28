@@ -66,6 +66,7 @@ class Orientation : public Renderable
     IplImage* _hue;
     IplImage* _mask;
     float _faceVector[3];
+	GLuint _staticImage;
 };
 
 #endif
